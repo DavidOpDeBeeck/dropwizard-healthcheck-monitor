@@ -18,9 +18,9 @@ The remote health check files need to have the following structure.
 
 ```javascript
 {
-    "healthCheckName": [{
+    "healthCheckName": {
         "healthy": "boolean"
-    }],
+    },
 }
 ```
 
