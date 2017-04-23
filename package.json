@@ -1,7 +1,13 @@
 {
   "name": "dropwizard-healthcheck-monitor",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "An in-browser healthcheck monitor for dropwizard",
   "license": "MIT",
+  "author": "David Op de Beeck",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavidOpDeBeeck/dropwizard-healthcheck-monitor.git"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -15,6 +21,7 @@
     "@angular/common": "^4.0.0",
     "@angular/compiler": "^4.0.0",
     "@angular/core": "^4.0.0",
+    "@angular/flex-layout": "^2.0.0-beta.8",
     "@angular/forms": "^4.0.0",
     "@angular/http": "^4.0.0",
     "@angular/platform-browser": "^4.0.0",
@@ -22,7 +29,8 @@
     "@angular/router": "^4.0.0",
     "core-js": "^2.4.1",
     "rxjs": "^5.1.0",
-    "zone.js": "^0.8.4"
+    "zone.js": "^0.8.4",
+    "cors-anywhere": "^0.4.0"
   },
   "devDependencies": {
     "@angular/cli": "1.0.0",

@@ -1,28 +1,32 @@
-# DropwizardHealthcheckMonitor
+# dropwizard-healthcheck-monitor
+An in-browser healthcheck monitor for dropwizard
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0.
+## Environments
+You can define your environments in the json file located at `assets/environments.json` with the following structure.
 
-## Development server
+```javascript
+{
+    "environmentName": [{
+        "name": "applicationName",
+        "healthCheckUrl": "urlToHealthCheck.json"
+    }],
+}
+```
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Health Checks
+The remote health check files need to have the following structure.
 
-## Code scaffolding
+```javascript
+{
+    "healthCheckName": [{
+        "healthy": "boolean"
+    }],
+}
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class/module`.
+## Reverse Proxy
+If you have trouble reaching your remote healthchecks due to `Access-Control-Allow-Origin` header restrictions, you can use the included reverse proxy. The reverse proxy will listen on all available network interfaces and on port `12345`. Example usage `http://localhost:12345/http://application-address.com/healthchecks.json`.
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```sh
+node reverse-proxy.js
+```

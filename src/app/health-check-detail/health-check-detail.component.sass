@@ -1,0 +1,40 @@
+@mixin blinking-mixin($animation)
+    animation-duration: 2000ms
+    animation-name: $animation
+    animation-iteration-count: infinite
+    animation-direction: normal
+
+\:host
+    &.unhealthy
+        @include blinking-mixin(blink-unhealthy)
+        .applications
+            background-color: #bc2e29
+    &.unreachable
+        @include blinking-mixin(blink-unreachable)
+        .applications
+            background-color: #eb9114
+section
+    padding: 10px
+    text-align: center
+    text-transform: uppercase
+    > h2
+        font-size: 1.75rem
+    > h3
+        font-size: 2.5rem
+        word-break: normal
+
+@keyframes blink-unreachable
+    0%
+        background-color: rgba(235,145,20,1)
+    50%
+        background-color: rgba(235,145,20,0.5)
+    100%
+        background-color: rgba(235,145,20,1)
+
+@keyframes blink-unhealthy
+    0%
+        background-color: rgba(188,46,41,1)
+    50%
+        background-color: rgba(188,46,41,0.5)
+    100%
+        background-color: rgba(188,46,41,1)
