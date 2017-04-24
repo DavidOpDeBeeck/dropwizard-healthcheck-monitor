@@ -18,3 +18,23 @@ export interface HealthChecksResponse {
         healthy: boolean
     }
 };
+
+export function parseHealthChecksResponse(object: any) : HealthChecksResponse {
+    let json = toJSON(object);
+    if (json && isHealthChecksResponse(json)) {
+        return (<HealthChecksResponse> json);
+    }
+    throw new Error("Object is not a valid HealthChecksResponse");
+};
+
+function toJSON(object: any) {
+    try {        
+        return JSON.parse(object);
+    } catch(e) {
+        return undefined;
+    }
+};
+
+function isHealthChecksResponse(object: any): object is HealthChecksResponse {
+    return (<HealthChecksResponse> object) !== undefined;
+};

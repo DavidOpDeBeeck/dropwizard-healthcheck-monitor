@@ -31,7 +31,7 @@ export class EnvironmentDetailComponent implements OnInit {
 
   ngOnInit() {
     this.healthChecks = Observable
-        .timer(0, 60 * 1000)
+        .timer(0, 60000)
         .flatMap(() => this.healthChecksService.getHealthChecks(this.environment));
   }
 }

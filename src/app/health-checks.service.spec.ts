@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from '@angular/http';
+import { HttpModule, Http, Response, ResponseOptions, ResponseType, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { Environment } from './models/environment'
@@ -8,6 +8,11 @@ import { HealthStatus } from './models/health-status'
 import { HealthCheck, HealthChecksResponse } from './models/health-check'
 
 import { HealthChecksService } from './health-checks.service';
+
+class ErrorReponse extends Response implements Error {
+    name: any
+    message: any
+}
 
 const UNHEALTHY_HEALTH_CHECK_REPONSE : HealthChecksResponse = {
   "healthyHealthCheckName" : {
@@ -75,6 +80,22 @@ describe('HealthchecksService', () => {
         connection.mockRespond(new Response(new ResponseOptions({
           body: JSON.stringify(UNHEALTHY_HEALTH_CHECK_REPONSE)
         })));
+      });
+
+      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
+        expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
+        expect(healthChecks[0].applications).toEqual([APPLICATION]);
+        expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+      });
+    }));
+
+    it('should return an Observable<Array<HealthCheck>> when the request is unsuccessfull and at least one healthcheck is unhealthy', 
+        inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
+
+      mockBackend.connections.subscribe((connection: MockConnection) => {
+        let body = JSON.stringify(UNHEALTHY_HEALTH_CHECK_REPONSE);
+        let opts = {type: ResponseType.Error, status: 500, body: body};
+        connection.mockError(new ErrorReponse(new ResponseOptions(opts)));
       });
 
       service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
