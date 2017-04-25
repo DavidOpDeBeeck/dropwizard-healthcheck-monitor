@@ -7,8 +7,7 @@ import { Environment, EnvironmentResponse } from './models/environment'
 import { Application } from './models/application'
 import { HealthStatus } from './models/health-status'
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+import 'rxjs';
 
 @Injectable()
 export class EnvironmentsService {
@@ -21,7 +20,7 @@ export class EnvironmentsService {
     return this.http.get("./assets/environments.json")
       .map(res => res.json())
       .map(res => this.mapToEnvironment(res))
-      .catch(err => new Array());
+      .catch(err => Observable.of([]));
   }
 
   private mapToEnvironment(environmentResponse: EnvironmentResponse): Array<Environment> {
@@ -35,5 +34,4 @@ export class EnvironmentsService {
       applications: applications
     };
   }
-
 }

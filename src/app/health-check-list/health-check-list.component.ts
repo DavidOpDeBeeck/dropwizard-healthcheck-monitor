@@ -22,7 +22,7 @@ export class HealthCheckListComponent implements OnInit {
 
   ngOnInit() {
     this.healthChecks
-        .subscribe(healthChecks => this.status = healthChecks.length > 0 ? 'has-issues' : 'has-no-issues');
+      .subscribe(healthChecks => this.status = healthChecks.length > 0 ? 'has-issues' : 'has-no-issues');
   }
 
 }

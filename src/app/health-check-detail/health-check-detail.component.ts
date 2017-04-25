@@ -10,7 +10,7 @@ import { HealthStatusPipe } from './../health-status.pipe';
     <section class="applications" fxFlex="none" fxLayout="row">
       <h2 fxFlex *ngFor="let application of healthCheck.applications" [innerHtml]="application.name"></h2>
     </section>
-    <section class="name"  fxFlex fxLayoutAlign="center center">
+    <section class="name" fxFlex fxLayoutAlign="center center">
       <h3 [innerHtml]="healthCheck?.name | startCase"></h3>
     </section>`,
   styleUrls: ['./health-check-detail.component.sass']

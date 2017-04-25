@@ -26,16 +26,16 @@ export class HealthChecksService {
             (application) => this.getHealthChecksFromApplication(application))
           .finally(
             () => observer.next(combineHealthChecks()))
-          .flatMap(
-            (healthChecks) => healthChecks)
           .subscribe(
-            (healthCheck) => registerHealthCheck(healthCheck));
+            (healthChecks) => healthChecks.forEach(healthCheck => registerHealthCheck(healthCheck)));
 
         function registerHealthCheck(healthCheck : HealthCheck) {
-            if (!healthChecks.has(healthCheck.name)) {
-              healthChecks.set(healthCheck.name, []);
+            let name = healthCheck.name;
+            
+            if (!healthChecks.has(name)) {
+              healthChecks.set(name, []);
             } 
-            healthChecks.get(healthCheck.name).push(healthCheck);
+            healthChecks.get(name).push(healthCheck);
         }
 
         function combineHealthChecks() : Array<CombinedHealthCheck> {
@@ -62,12 +62,12 @@ export class HealthChecksService {
       .catch(err => this.mapToUnhealthyOrUnreachable(application, err));
   }
 
-  private mapToUnhealthyOrUnreachable(application: Application, error: any) : Array<Array<HealthCheck>> {
+  private mapToUnhealthyOrUnreachable(application: Application, error: any) : Observable<Array<HealthCheck>> {
       try {        
-        let body = parseHealthChecksResponse(error._body);
-        return new Array<Array<HealthCheck>>(this.mapToUnhealthy(application, body));
+        let body : HealthChecksResponse = parseHealthChecksResponse(error.json());
+        return Observable.of(this.mapToUnhealthy(application, body));
       } catch(e) {
-        return new Array<Array<HealthCheck>>(this.mapToUnreachable(application));
+        return Observable.of(this.mapToUnreachable(application));
       }
   }
 

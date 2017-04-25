@@ -20,21 +20,17 @@ export interface HealthChecksResponse {
 };
 
 export function parseHealthChecksResponse(object: any) : HealthChecksResponse {
-    let json = toJSON(object);
-    if (json && isHealthChecksResponse(json)) {
-        return (<HealthChecksResponse> json);
+    let parsable = true;
+    let keys = Object.keys(object);
+
+    keys.forEach(key => {
+        if (object[key].healthy === undefined) {
+            parsable = false;
+        }
+    });
+
+    if (parsable) {
+        return object;
     }
     throw new Error("Object is not a valid HealthChecksResponse");
-};
-
-function toJSON(object: any) {
-    try {        
-        return JSON.parse(object);
-    } catch(e) {
-        return undefined;
-    }
-};
-
-function isHealthChecksResponse(object: any): object is HealthChecksResponse {
-    return (<HealthChecksResponse> object) !== undefined;
 };

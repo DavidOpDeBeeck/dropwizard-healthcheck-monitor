@@ -23,15 +23,14 @@ import 'rxjs';
 export class EnvironmentDetailComponent implements OnInit {
 
   @Input() environment: Environment;
-  healthChecks: Observable<Array<CombinedHealthCheck>> = new Observable();
+  healthChecks: Observable<Array<CombinedHealthCheck>>;
 
   constructor(
     private healthChecksService : HealthChecksService
   ) { }
 
   ngOnInit() {
-    this.healthChecks = Observable
-        .timer(0, 60000)
+    this.healthChecks = Observable.timer(0, 60000)
         .flatMap(() => this.healthChecksService.getHealthChecks(this.environment));
   }
 }

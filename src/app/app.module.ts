@@ -13,7 +13,7 @@ import { HealthCheckDetailComponent } from './health-check-detail/health-check-d
 import { EnvironmentsService } from './environments.service';
 import { HealthChecksService } from './health-checks.service';
 import { HealthStatusPipe } from './health-status.pipe';
-import { StartCasePipe } from './start-case.pipe';
+import { StartCasePipe } from './start-case.pipe'
 
 @NgModule({
   declarations: [

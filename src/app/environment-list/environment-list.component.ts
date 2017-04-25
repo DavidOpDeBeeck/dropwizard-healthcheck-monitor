@@ -4,8 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { EnvironmentsService } from './../environments.service';
 import { Environment } from './../models/environment';
 
-import "rxjs/add/operator/merge";
-
 @Component({
   selector: 'environment-list',
   template: `
