@@ -64,7 +64,7 @@ describe('HealthchecksService', () => {
   });
 
   describe('getHealthChecks', () => {
-    it('should return an empty Observable<Array<HealthCheck>> when the request is successfull and the response is healthy', 
+    it('should return an empty Observable<HealthCheck[]> when the request is successfull and the response is healthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -79,7 +79,7 @@ describe('HealthchecksService', () => {
       });
     }));
 
-    it('should return an unhealthy Observable<Array<HealthCheck>> when the request is successfull and the response is unhealthy', 
+    it('should return an unhealthy Observable<HealthCheck[]> when the request is successfull and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -92,11 +92,12 @@ describe('HealthchecksService', () => {
         expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
         expect(healthChecks[0].applications).toEqual([APPLICATION]);
         expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+        expect(healthChecks.length).toEqual(1);
         expect(healthChecks instanceof Array).toBeTruthy();
       });
     }));
 
-    it('should return an unhealthy Observable<Array<HealthCheck>> when the request is unsuccessfull and the response is unhealthy', 
+    it('should return an unhealthy Observable<HealthCheck[]> when the request is unsuccessfull and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -109,11 +110,12 @@ describe('HealthchecksService', () => {
         expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
         expect(healthChecks[0].applications).toEqual([APPLICATION]);
         expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+        expect(healthChecks.length).toEqual(1);
         expect(healthChecks instanceof Array).toBeTruthy();
       });
     }));
 
-    it('should return an unreachable Observable<Array<HealthCheck>> when the request is unsuccessfull and the response not a HealthChecksResponse', 
+    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessfull and the response not a HealthChecksResponse', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -126,11 +128,12 @@ describe('HealthchecksService', () => {
         expect(healthChecks[0].name).toEqual("unreachable");
         expect(healthChecks[0].applications).toEqual([APPLICATION]);
         expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
+        expect(healthChecks.length).toEqual(1);
         expect(healthChecks instanceof Array).toBeTruthy();
       });
     }));
 
-    it('should return an unreachable Observable<Array<HealthCheck>> when the request is unsuccessfull', 
+    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessfull', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -141,6 +144,7 @@ describe('HealthchecksService', () => {
         expect(healthChecks[0].name).toEqual("unreachable");
         expect(healthChecks[0].applications).toEqual([APPLICATION]);
         expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
+        expect(healthChecks.length).toEqual(1);
         expect(healthChecks instanceof Array).toBeTruthy();
       });
     }));

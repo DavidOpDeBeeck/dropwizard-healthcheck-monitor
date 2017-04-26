@@ -17,7 +17,7 @@ import { Environment } from './../models/environment';
 })
 export class EnvironmentListComponent implements OnInit {
 
-  environments: Observable<Array<Environment>>;
+  environments: Observable<Environment[]>;
 
   constructor(
     private environmentsService : EnvironmentsService

@@ -16,22 +16,20 @@ export class EnvironmentsService {
     @Inject(Http) private http,
   ) { }
 
-  getEnvironments() : Observable<Array<Environment>> {
+  getEnvironments() : Observable<Environment[]> {
     return this.http.get("./assets/environments.json")
       .map(res => res.json())
       .map(res => this.mapToEnvironment(res))
-      .catch(err => Observable.of([]));
+      .catch(err => Observable.of([]))
+      .share();
   }
 
-  private mapToEnvironment(environmentResponse: EnvironmentResponse): Array<Environment> {
-    return Object.keys(environmentResponse)
-              .map(name => this.createEnvironment(name, environmentResponse[name]));
+  private mapToEnvironment(response: EnvironmentResponse): Environment[] {
+    let names : string[] = Object.keys(response);
+    return names.map(name => this.createEnvironment(name, response[name]));
   }
 
   private createEnvironment(name: string, applications: Application[]): Environment {
-    return {
-      name: name,
-      applications: applications
-    };
+    return { name: name, applications: applications };
   }
 }

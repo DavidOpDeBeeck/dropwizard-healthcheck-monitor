@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subscriber } from 'rxjs/Rx';
 
 import { HealthChecksService } from './../health-checks.service';
 import { Environment } from './../models/environment';
@@ -23,7 +23,7 @@ import 'rxjs';
 export class EnvironmentDetailComponent implements OnInit {
 
   @Input() environment: Environment;
-  healthChecks: Observable<Array<CombinedHealthCheck>>;
+  healthChecks: Observable<CombinedHealthCheck[]> = new Observable();
 
   constructor(
     private healthChecksService : HealthChecksService

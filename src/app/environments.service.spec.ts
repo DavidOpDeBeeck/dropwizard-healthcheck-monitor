@@ -44,6 +44,8 @@ describe('EnvironmentService', () => {
       service.getEnvironments().subscribe((environments) => {
         expect(environments[0].name).toEqual("environment");
         expect(environments[0].applications).toEqual([APPLICATION]);
+        expect(environments.length).toEqual(1);
+        expect(environments instanceof Array).toBeTruthy();
       });
     }));
 
@@ -56,6 +58,7 @@ describe('EnvironmentService', () => {
 
       service.getEnvironments().subscribe((environments) => {
         expect(environments.length).toEqual(0);
+        expect(environments instanceof Array).toBeTruthy();
       });
     }));
   });

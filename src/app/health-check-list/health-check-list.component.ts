@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { Component, AfterViewInit, Input, HostBinding, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { CombinedHealthCheck } from './../models/health-check';
@@ -15,7 +15,7 @@ import { CombinedHealthCheck } from './../models/health-check';
 })
 export class HealthCheckListComponent implements OnInit {
 
-  @Input() healthChecks: Observable<Array<CombinedHealthCheck>>;
+  @Input() healthChecks: Observable<CombinedHealthCheck[]>;
   @HostBinding('class') status: string;
 
   constructor() { }
@@ -24,5 +24,4 @@ export class HealthCheckListComponent implements OnInit {
     this.healthChecks
       .subscribe(healthChecks => this.status = healthChecks.length > 0 ? 'has-issues' : 'has-no-issues');
   }
-
 }

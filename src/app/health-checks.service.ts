@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Inject } from '@angular/core';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subscriber } from 'rxjs';
 
 import { Application } from './models/application'
 import { Environment } from './models/environment'
@@ -17,41 +17,39 @@ export class HealthChecksService {
     @Inject(Http) private http,
   ) { }
 
-  getHealthChecks(environment: Environment) : Observable<Array<CombinedHealthCheck>> {
-    return new Observable<Array<CombinedHealthCheck>>(observer => {
-        let healthChecks : Map<string, Array<HealthCheck>> = new Map();
+  getHealthChecks(environment: Environment) : Observable<CombinedHealthCheck[]> {
+    return new Observable<CombinedHealthCheck[]>(observer => {
+      let healthChecks : Map<string, HealthCheck[]> = new Map();
 
-        Observable.from(environment.applications)
-          .flatMap(
-            (application) => this.getHealthChecksFromApplication(application))
-          .finally(
-            () => observer.next(combineHealthChecks()))
-          .subscribe(
-            (healthChecks) => healthChecks.forEach(healthCheck => registerHealthCheck(healthCheck)));
+      Observable.from(environment.applications)
+        .flatMap(
+          (application) => this.getHealthChecksFromApplication(application))
+        .finally(
+          () => observer.next(combineHealthChecks()))
+        .subscribe(
+          (healthChecks) => healthChecks.forEach(healthCheck => registerHealthCheck(healthCheck)));
+      
+      function registerHealthCheck(healthCheck : HealthCheck) : void {
+        let name = healthCheck.name;
+        if (!healthChecks.has(name))
+          healthChecks.set(name, []);
+        healthChecks.get(name).push(healthCheck);
+      }
 
-        function registerHealthCheck(healthCheck : HealthCheck) {
-            let name = healthCheck.name;
-            
-            if (!healthChecks.has(name)) {
-              healthChecks.set(name, []);
-            } 
-            healthChecks.get(name).push(healthCheck);
-        }
+      function combineHealthChecks() : CombinedHealthCheck[] {
+        let names : string[] = Array.from(healthChecks.keys());
 
-        function combineHealthChecks() : Array<CombinedHealthCheck> {
-          let names : Array<string> = Array.from(healthChecks.keys());
+        return names.map(name => {
+          let checks = healthChecks.get(name);
+          let applications = checks.map(check => check.application);
 
-          return names.map(name => {
-            let checks = healthChecks.get(name);
-            let applications = checks.map(check => check.application);
-
-            return {
-              name: name,
-              applications: applications,
-              status: checks[0].status
-            };
-          });
-        }
+          return {
+            name: name,
+            applications: applications,
+            status: checks[0].status
+          };
+        });
+      }
     });
   }
 
@@ -59,7 +57,8 @@ export class HealthChecksService {
     return this.http.get(application.healthCheckUrl)
       .map(res => res.json())
       .map(res => this.mapToUnhealthy(application, res))
-      .catch(err => this.mapToUnhealthyOrUnreachable(application, err));
+      .catch(err => this.mapToUnhealthyOrUnreachable(application, err))
+      .share();
   }
 
   private mapToUnhealthyOrUnreachable(application: Application, error: any) : Observable<Array<HealthCheck>> {
@@ -71,17 +70,17 @@ export class HealthChecksService {
       }
   }
 
-  private mapToUnhealthy(application: Application, healthChecksResponse: HealthChecksResponse) : Array<HealthCheck> {
-    let healthCheckNames : Array<string> = Object.keys(healthChecksResponse);
+  private mapToUnhealthy(application: Application, response: HealthChecksResponse) : HealthCheck[] {
+    let names : string[] = Object.keys(response);
 
-    return healthCheckNames
-              .filter(name => !healthChecksResponse[name]['healthy'])
+    return names
+              .filter(name => !response[name]['healthy'])
               .map(name => this.createHealthCheck(application, name, HealthStatus.Unhealthy));
   }
 
-  private mapToUnreachable(application: Application) :  Array<HealthCheck> {
+  private mapToUnreachable(application: Application) : HealthCheck[] {
     let healthCheck : HealthCheck = this.createHealthCheck(application, "unreachable", HealthStatus.UnReachable);
-    return new Array<HealthCheck>(healthCheck);
+    return [healthCheck];
   }
 
   private createHealthCheck(application: Application, name: string, status: HealthStatus) : HealthCheck {
