@@ -37,15 +37,8 @@ const INVALID_RESPONSE = {
   "key2": []
 };
 
-const APPLICATION : Application = {
-  name: "application",
-  healthCheckUrl: "url"
-};
-
-const ENVIRONMENT : Environment = {
-    name: "environment",
-    applications: [APPLICATION]
-};
+const APPLICATION = new Application("application", "healthCheckUrl");
+const ENVIRONMENT = new Environment("environment", [APPLICATION]);
 
 describe('HealthchecksService', () => {
   beforeEach(() => {

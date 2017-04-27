@@ -13,23 +13,19 @@ import 'rxjs';
 export class EnvironmentsService {
 
   constructor(
-    @Inject(Http) private http,
+    @Inject(Http) private http
   ) { }
 
-  getEnvironments() : Observable<Environment[]> {
+  getEnvironments(): Observable<Environment[]> {
     return this.http.get("./assets/environments.json")
       .map(res => res.json())
-      .map(res => this.mapToEnvironment(res))
+      .map(res => this.mapToEnvironments(res))
       .catch(err => Observable.of([]))
       .share();
   }
 
-  private mapToEnvironment(response: EnvironmentResponse): Environment[] {
-    let names : string[] = Object.keys(response);
-    return names.map(name => this.createEnvironment(name, response[name]));
-  }
-
-  private createEnvironment(name: string, applications: Application[]): Environment {
-    return { name: name, applications: applications };
+  private mapToEnvironments(response: EnvironmentResponse): Environment[] {
+    let environmentNames : string[] = Object.keys(response);
+    return environmentNames.map(name => new Environment(name, response[name]));
   }
 }

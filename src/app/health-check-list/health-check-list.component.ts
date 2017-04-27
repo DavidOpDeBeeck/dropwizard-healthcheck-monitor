@@ -7,9 +7,10 @@ import { CombinedHealthCheck } from './../models/health-check';
   selector: 'health-check-list',
   template: `
     <health-check-detail 
-      fxFlex fxLayout="column"
-      [healthCheck]="healthCheck"
-      *ngFor="let healthCheck of healthChecks | async"></health-check-detail>
+        fxFlex fxLayout="column"
+        [healthCheck]="healthCheck"
+        *ngFor="let healthCheck of healthChecks | async">
+    </health-check-detail>
   `,
   styleUrls: ['./health-check-list.component.sass']
 })

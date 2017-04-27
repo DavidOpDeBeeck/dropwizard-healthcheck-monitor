@@ -1,4 +1,6 @@
-export interface Application {
-    name: string,
-    healthCheckUrl: string;
+export class Application {
+    constructor(
+        public name: string, 
+        public healthCheckUrl: string
+    ) { }
 };

@@ -17,7 +17,7 @@ export class HealthChecksService {
     @Inject(Http) private http,
   ) { }
 
-  getHealthChecks(environment: Environment) : Observable<CombinedHealthCheck[]> {
+  getHealthChecks(environment: Environment): Observable<CombinedHealthCheck[]> {
     return new Observable<CombinedHealthCheck[]>(observer => {
       let healthChecks : Map<string, HealthCheck[]> = new Map();
 
@@ -29,31 +29,28 @@ export class HealthChecksService {
         .subscribe(
           (healthChecks) => healthChecks.forEach(healthCheck => registerHealthCheck(healthCheck)));
       
-      function registerHealthCheck(healthCheck : HealthCheck) : void {
+      function registerHealthCheck(healthCheck: HealthCheck): void {
         let name = healthCheck.name;
-        if (!healthChecks.has(name))
+        if (!healthChecks.has(name)) {
           healthChecks.set(name, []);
+        } 
         healthChecks.get(name).push(healthCheck);
       }
 
-      function combineHealthChecks() : CombinedHealthCheck[] {
-        let names : string[] = Array.from(healthChecks.keys());
+      function combineHealthChecks(): CombinedHealthCheck[] {
+        let names: string[] = Array.from(healthChecks.keys());
 
         return names.map(name => {
           let checks = healthChecks.get(name);
           let applications = checks.map(check => check.application);
 
-          return {
-            name: name,
-            applications: applications,
-            status: checks[0].status
-          };
+          return new CombinedHealthCheck(name, applications, checks[0].status);
         });
       }
-    });
+    }).share();
   }
 
-  private getHealthChecksFromApplication(application: Application) : Observable<Array<HealthCheck>> {
+  private getHealthChecksFromApplication(application: Application): Observable<HealthCheck[]> {
     return this.http.get(application.healthCheckUrl)
       .map(res => res.json())
       .map(res => this.mapToUnhealthy(application, res))
@@ -61,7 +58,7 @@ export class HealthChecksService {
       .share();
   }
 
-  private mapToUnhealthyOrUnreachable(application: Application, error: any) : Observable<Array<HealthCheck>> {
+  private mapToUnhealthyOrUnreachable(application: Application, error: any): Observable<HealthCheck[]> {
       try {        
         let body : HealthChecksResponse = parseHealthChecksResponse(error.json());
         return Observable.of(this.mapToUnhealthy(application, body));
@@ -70,20 +67,15 @@ export class HealthChecksService {
       }
   }
 
-  private mapToUnhealthy(application: Application, response: HealthChecksResponse) : HealthCheck[] {
-    let names : string[] = Object.keys(response);
+  private mapToUnhealthy(application: Application, response: HealthChecksResponse): HealthCheck[] {
+    let healthCheckNames : string[] = Object.keys(response);
 
-    return names
+    return healthCheckNames
               .filter(name => !response[name]['healthy'])
-              .map(name => this.createHealthCheck(application, name, HealthStatus.Unhealthy));
+              .map(name => new HealthCheck(name, application, HealthStatus.Unhealthy));
   }
 
-  private mapToUnreachable(application: Application) : HealthCheck[] {
-    let healthCheck : HealthCheck = this.createHealthCheck(application, "unreachable", HealthStatus.UnReachable);
-    return [healthCheck];
-  }
-
-  private createHealthCheck(application: Application, name: string, status: HealthStatus) : HealthCheck {
-    return { name: name, application: application, status: status };
+  private mapToUnreachable(application: Application): HealthCheck[] {
+    return [new HealthCheck("unreachable", application, HealthStatus.UnReachable)];
   }
 }

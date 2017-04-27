@@ -1,8 +1,10 @@
 import { Application } from './application';
 
-export interface Environment {
-    name: string,
-    applications: Application[]
+export class Environment {
+    constructor(
+        public name: string, 
+        public applications: Application[]
+    ) { }
 };
 
 export interface EnvironmentResponse {

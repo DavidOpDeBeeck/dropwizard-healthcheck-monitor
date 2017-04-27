@@ -8,9 +8,13 @@ import { HealthStatusPipe } from './../health-status.pipe';
   selector: 'health-check-detail',
   template: `
     <section class="applications" fxFlex="none" fxLayout="row">
-      <h2 fxFlex *ngFor="let application of healthCheck.applications" [innerHtml]="application.name"></h2>
+      <h2 fxFlex 
+          [innerHtml]="application.name"
+          *ngFor="let application of healthCheck.applications"></h2>
     </section>
-    <section class="name" fxFlex fxLayoutAlign="center center">
+    <section 
+        fxFlex fxLayoutAlign="center center"
+        class="name">
       <h3 [innerHtml]="healthCheck?.name | startCase"></h3>
     </section>`,
   styleUrls: ['./health-check-detail.component.sass']

@@ -31,6 +31,8 @@ export class EnvironmentDetailComponent implements OnInit {
 
   ngOnInit() {
     this.healthChecks = Observable.timer(0, 60000)
-        .flatMap(() => this.healthChecksService.getHealthChecks(this.environment));
+        .flatMap(
+          () => this.healthChecksService.getHealthChecks(this.environment))
+        .share();
   }
 }

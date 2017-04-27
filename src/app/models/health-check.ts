@@ -1,16 +1,20 @@
 import { Application } from './application';
 import { HealthStatus } from './health-status';
 
-export interface HealthCheck {
-    name: string,
-    application: Application,
-    status: HealthStatus
+export class HealthCheck {
+    constructor(
+        public name: string, 
+        public application: Application,
+        public status: HealthStatus
+    ) { }
 };
 
-export interface CombinedHealthCheck {
-    name: string,
-    applications: Application[],
-    status: HealthStatus
+export class CombinedHealthCheck {
+    constructor(
+        public name: string, 
+        public applications: Application[],
+        public status: HealthStatus
+    ) { }
 };
 
 export interface HealthChecksResponse {
