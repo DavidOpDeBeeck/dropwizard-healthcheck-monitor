@@ -1,44 +1,41 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { HttpModule, Http, Response, ResponseOptions, ResponseType, BaseRequestOptions } from '@angular/http';
+import { HttpModule, Http, Response, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+import { MockBackendBuilder } from './testing/mock-backend-builder';
 
 import { Environment } from './models/environment';
 import { Application } from './models/application';
 import { HealthStatus } from './models/health-status';
-import { HealthCheck, HealthChecksResponse } from './models/health-check';
+import { HealthCheck, HealthChecksResponseFormat } from './models/health-check';
 
 import { HealthChecksService } from './health-checks.service';
 
-class ErrorResponse extends Response implements Error {
-    name: any
-    message: any
-}
-
-const UNHEALTHY_REPONSE : HealthChecksResponse = {
-  "healthyHealthCheckName" : {
+const APPLICATION_URL = "/url/healthcheck.json";
+const APPLICATION = new Application("application", APPLICATION_URL);
+const ENVIRONMENT = new Environment("environment", [APPLICATION]);
+const UNHEALTHY_REPONSE: HealthChecksResponseFormat = {
+  "healthyHealthCheckName": {
       healthy: true
   },
-  "unhealthyHealthCheckName" : {
+  "unhealthyHealthCheckName": {
+      healthy: false
+  },
+  "anotherunhealthyHealthCheckName": {
       healthy: false
   }
 };
-
-const HEALTHY_REPONSE : HealthChecksResponse = {
-  "healthyHealthCheckName" : {
+const HEALTHY_REPONSE : HealthChecksResponseFormat = {
+  "healthyHealthCheckName": {
       healthy: true
   },
-  "unhealthyHealthCheckName" : {
+  "unhealthyHealthCheckName": {
       healthy: true
   }
 };
-
 const INVALID_RESPONSE = {
   "key1": {},
   "key2": []
 };
-
-const APPLICATION = new Application("application", "healthCheckUrl");
-const ENVIRONMENT = new Environment("environment", [APPLICATION]);
 
 describe('HealthchecksService', () => {
   beforeEach(() => {
@@ -57,89 +54,122 @@ describe('HealthchecksService', () => {
   });
 
   describe('getHealthChecks', () => {
-    it('should return an empty Observable<HealthCheck[]> when the request is successfull and the response is healthy', 
+    it('should return an empty Observable<HealthCheck[]> when the request is successful and the response is healthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
+      
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(APPLICATION_URL)
+        .withResponse(HEALTHY_REPONSE)
+        .withStatus(200)
+        .build();
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        connection.mockRespond(new Response(new ResponseOptions({
-          body: JSON.stringify(HEALTHY_REPONSE)
-        })));
-      });
-
-      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
-        expect(healthChecks.length).toEqual(0);
-        expect(healthChecks instanceof Array).toBeTruthy();
-      });
+      service.getHealthChecks(ENVIRONMENT).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(0);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
 
-    it('should return an unhealthy Observable<HealthCheck[]> when the request is successfull and the response is unhealthy', 
+    it('should return an unhealthy Observable<HealthCheck[]> when the request is successful and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        connection.mockRespond(new Response(new ResponseOptions({
-          body: JSON.stringify(UNHEALTHY_REPONSE)
-        })));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(APPLICATION_URL)
+        .withResponse(UNHEALTHY_REPONSE)
+        .withStatus(200)
+        .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
-        expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
-        expect(healthChecks[0].applications).toEqual([APPLICATION]);
-        expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
-        expect(healthChecks.length).toEqual(1);
-        expect(healthChecks instanceof Array).toBeTruthy();
-      });
+      service.getHealthChecks(ENVIRONMENT).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(2);
+
+          expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
+          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+          
+          expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
+          expect(healthChecks[1].applications).toEqual([APPLICATION]);
+          expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
 
-    it('should return an unhealthy Observable<HealthCheck[]> when the request is unsuccessfull and the response is unhealthy', 
+    it('should return an unhealthy Observable<HealthCheck[]> when the request is unsuccessful and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        let body = JSON.stringify(UNHEALTHY_REPONSE);
-        let opts = { type: ResponseType.Error, status: 500, body: body };
-        connection.mockError(new ErrorResponse(new ResponseOptions(opts)));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(APPLICATION_URL)
+        .withResponse(UNHEALTHY_REPONSE)
+        .withStatus(500)
+        .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
-        expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
-        expect(healthChecks[0].applications).toEqual([APPLICATION]);
-        expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
-        expect(healthChecks.length).toEqual(1);
-        expect(healthChecks instanceof Array).toBeTruthy();
-      });
+      service.getHealthChecks(ENVIRONMENT).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(2);
+
+          expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
+          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+
+          expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
+          expect(healthChecks[1].applications).toEqual([APPLICATION]);
+          expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
 
-    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessfull and the response not a HealthChecksResponse', 
+    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessful and the response not a HealthChecksResponse', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        let body = JSON.stringify(INVALID_RESPONSE);
-        let opts = { type: ResponseType.Error, status: 500, body: body };
-        connection.mockError(new ErrorResponse(new ResponseOptions(opts)));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(APPLICATION_URL)
+        .withResponse(INVALID_RESPONSE)
+        .withStatus(500)
+        .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
-        expect(healthChecks[0].name).toEqual("unreachable");
-        expect(healthChecks[0].applications).toEqual([APPLICATION]);
-        expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
-        expect(healthChecks.length).toEqual(1);
-        expect(healthChecks instanceof Array).toBeTruthy();
-      });
+      service.getHealthChecks(ENVIRONMENT).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(1);
+
+          expect(healthChecks[0].name).toEqual("unreachable");
+          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
 
-    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessfull', 
+    it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessful', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        connection.mockError(new Error("unreachable"));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(APPLICATION_URL)
+        .withFail()
+        .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe((healthChecks) => {
-        expect(healthChecks[0].name).toEqual("unreachable");
-        expect(healthChecks[0].applications).toEqual([APPLICATION]);
-        expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
-        expect(healthChecks.length).toEqual(1);
-        expect(healthChecks instanceof Array).toBeTruthy();
-      });
+      service.getHealthChecks(ENVIRONMENT).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(1);
+
+          expect(healthChecks[0].name).toEqual("unreachable");
+          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
   });
 });

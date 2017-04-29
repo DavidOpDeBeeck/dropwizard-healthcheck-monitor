@@ -1,8 +1,9 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+import { MockBackendBuilder } from './testing/mock-backend-builder';
 
-import { Environment, EnvironmentResponse } from './models/environment'
+import { Environment, EnvironmentResponseFormat } from './models/environment'
 
 import { EnvironmentsService } from './environments.service';
 
@@ -10,8 +11,8 @@ const APPLICATION = {
     name: "application",
     healthCheckUrl: "url"
 };
-
-const ENVIRONMENTS_RESPONSE : EnvironmentResponse = {
+const ENVIRONMENTS_URL: string = "./assets/environments.json";
+const ENVIRONMENTS_RESPONSE : EnvironmentResponseFormat = {
   "environment" : [APPLICATION]
 };
 
@@ -35,31 +36,41 @@ describe('EnvironmentService', () => {
     it('should return an Observable<Environment> when the request is successful', 
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        connection.mockRespond(new Response(new ResponseOptions({
-          body: JSON.stringify(ENVIRONMENTS_RESPONSE)
-        })));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(ENVIRONMENTS_URL)
+        .withResponse(ENVIRONMENTS_RESPONSE)
+        .withStatus(200)
+        .build();
 
-      service.getEnvironments().subscribe((environments) => {
-        expect(environments[0].name).toEqual("environment");
-        expect(environments[0].applications).toEqual([APPLICATION]);
-        expect(environments.length).toEqual(1);
-        expect(environments instanceof Array).toBeTruthy();
-      });
+      service.getEnvironments().subscribe(
+        (environments) => {
+          expect(environments.length).toEqual(1);
+
+          expect(environments[0].name).toEqual("environment");
+          expect(environments[0].applications).toEqual([APPLICATION]);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
 
-    it('should return an empty Observable<HealthCheck> when the request is unsuccessful', 
+    it('should return an empty Observable<Environment> when the request is unsuccessful', 
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
-      mockBackend.connections.subscribe((connection: MockConnection) => {
-        connection.mockError(new Error("unreachable"));
-      });
+      MockBackendBuilder
+        .mockBackend(mockBackend)
+        .withUrl(ENVIRONMENTS_URL)
+        .withFail()
+        .build();
 
-      service.getEnvironments().subscribe((environments) => {
-        expect(environments.length).toEqual(0);
-        expect(environments instanceof Array).toBeTruthy();
-      });
+      service.getEnvironments().subscribe(
+        (environments) => {
+          expect(environments.length).toEqual(0);
+        },
+        (error) => {
+          fail(error); 
+        });
     }));
   });
 });

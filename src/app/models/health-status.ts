@@ -1,15 +1,10 @@
 export enum HealthStatus {
-    Healthy,
-    Unhealthy,
-    UnReachable,
-    Unknown
+    Healthy = 0,
+    Unhealthy = 1,
+    UnReachable = 2
 };
 
-export function toHealthStatus(healthy: boolean) : HealthStatus {
-    return healthy ? HealthStatus.Healthy : HealthStatus.Unhealthy;
-};
-
-export function toHealthStatusString(healthStatus: HealthStatus) : string {
+export function toHealthStatusValue(healthStatus: HealthStatus): string {
     switch (healthStatus) {
         case HealthStatus.Healthy: 
             return "healthy";
