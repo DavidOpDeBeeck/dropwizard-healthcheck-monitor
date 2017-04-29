@@ -8,7 +8,6 @@ describe('HealthStatusPipe', () => {
     expect(pipe.transform(HealthStatus.Healthy)).toEqual("healthy");
     expect(pipe.transform(HealthStatus.Unhealthy)).toEqual("unhealthy");
     expect(pipe.transform(HealthStatus.UnReachable)).toEqual("unreachable");
-    expect(pipe.transform(HealthStatus.Unknown)).toEqual("unknown");
   });
 
   it('should return "unknown" when the HealthStatus is invalid', () => {
