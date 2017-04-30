@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { EnvironmentListComponent } from './environment-list/environment-list.component';
@@ -10,6 +11,7 @@ import { EnvironmentDetailComponent } from './environment-detail/environment-det
 import { HealthCheckListComponent } from './health-check-list/health-check-list.component';
 import { HealthCheckDetailComponent } from './health-check-detail/health-check-detail.component';
 
+import { APP_ROUTES } from './app.routes';
 import { EnvironmentsService } from './environments.service';
 import { HealthChecksService } from './health-checks.service';
 import { HealthStatusPipe } from './health-status.pipe';
@@ -29,7 +31,8 @@ import { StartCasePipe } from './start-case.pipe';
     BrowserModule,
     FormsModule,
     HttpModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    RouterModule.forRoot(APP_ROUTES)
   ],
   providers: [EnvironmentsService, HealthChecksService, HealthStatusPipe],
   bootstrap: [AppComponent]

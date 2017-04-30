@@ -1,0 +1,18 @@
+{
+  "name": "dropwizard-healthcheck-monitor",
+  "version": "1.0.0",
+  "description": "An in-browser healthcheck monitor for dropwizard",
+  "license": "MIT",
+  "author": "David Op de Beeck",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavidOpDeBeeck/dropwizard-healthcheck-monitor.git"
+  },
+  "scripts": {
+    "start": "node reverse-proxy.js"
+  },
+  "private": true,
+  "dependencies": {
+    "cors-anywhere": "^0.4.0"
+  }
+}
