@@ -8,16 +8,16 @@ export interface HealthChecksResponseFormat {
 };
 
 export class HealthChecksResponse {
-    
+
     public static fromResponse(response: any, application: Application): HealthChecksResponse {
         return HealthChecksResponse.hasValidFormat(response)
             ? new HealthChecksResponse(application, false, response)
             : new HealthChecksResponse(application, true, undefined);
     }
 
-    private static hasValidFormat(object: any): boolean {
-        return Object.keys(object)
-                    .filter(key => object[key].healthy === undefined)
+    private static hasValidFormat(response: any): boolean {
+        return Object.keys(response)
+                    .filter(key => response[key].healthy === undefined)
                     .length === 0;
     }
 

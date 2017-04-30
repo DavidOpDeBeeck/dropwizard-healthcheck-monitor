@@ -21,7 +21,7 @@ export class HealthChecksService {
     return Observable.from(environment.applications)
             .flatMap(
               (application: Application) => {
-                return this.getHealthCheckResponseFromApplication(application);
+                return this.getHealthCheckResponse(application);
               })
             .flatMap(
               (response: HealthChecksResponse) => {
@@ -35,14 +35,15 @@ export class HealthChecksService {
             .share();
   }
 
-  private getHealthCheckResponseFromApplication(application: Application): Observable<HealthChecksResponse> {
+  private getHealthCheckResponse(application: Application): Observable<HealthChecksResponse> {
     return this.http.get(application.healthCheckUrl)
       .flatMap(res => this.toHealthChecksResponse(res, application))
       .catch(err => this.toHealthChecksResponse(err, application));
   }
 
   private toHealthChecksResponse(res: any, application: Application): Observable<HealthChecksResponse> {
-    let body = res.json ? res.json() : res;
-    return Observable.of(HealthChecksResponse.fromResponse(body, application));
+    let body: any = res.json ? res.json() : res;
+    let healthCheckResponse: HealthChecksResponse = HealthChecksResponse.fromResponse(body, application);
+    return Observable.of(healthCheckResponse);
   }
 }
