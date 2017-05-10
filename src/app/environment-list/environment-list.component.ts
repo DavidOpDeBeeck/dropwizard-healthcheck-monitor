@@ -13,7 +13,10 @@ import { Environment } from './../models/environment';
         *ngFor="let environment of environments | async">
     </environment-detail>
   `,
-  styleUrls: ['./environment-list.component.sass']
+  styleUrls: ['./environment-list.component.sass'],
+  host: {
+      "[attr.fxLayout]": "row"
+   }
 })
 export class EnvironmentListComponent implements OnInit {
 
