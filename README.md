@@ -1,6 +1,9 @@
 # Dropwizard health check monitor
 An in-browser healthcheck monitor for dropwizard healthchecks
 
+## Screenshot
+![ScreenShot](https://raw.githubusercontent.com/DavidOpDeBeeck/dropwizard-healthcheck-monitor/master/screenshot/screenshot.png)
+
 ## Environments
 You can define your environments in the json file located at `assets/environments.json` with the following structure.
 
