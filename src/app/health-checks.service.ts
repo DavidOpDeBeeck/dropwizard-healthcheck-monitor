@@ -37,6 +37,7 @@ export class HealthChecksService {
 
   private getHealthCheckResponse(application: Application): Observable<HealthChecksResponse> {
     return this.http.get(application.healthCheckUrl)
+      .timeout(10000, new Error('timeout exceeded'))
       .flatMap(res => this.toHealthChecksResponse(res, application))
       .catch(err => this.toHealthChecksResponse(err, application));
   }
