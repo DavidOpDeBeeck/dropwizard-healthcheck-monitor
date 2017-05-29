@@ -9,45 +9,32 @@ export interface HealthChecksResponseFormat {
 
 export class HealthChecksResponse {
 
-    public static fromResponse(response: any, application: Application): HealthChecksResponse {
-        return HealthChecksResponse.hasValidFormat(response)
-            ? new HealthChecksResponse(application, false, response)
-            : new HealthChecksResponse(application, true, undefined);
+    public static fromResponse(application: Application, response?: HealthChecksResponseFormat): HealthChecksResponse {
+        return response
+            ? new HealthChecksResponse(application, HealthChecksResponse.toHealthChecks(application, response))
+            : new HealthChecksResponse(application, HealthChecksResponse.toUnreachable(application))
     }
 
-    private static hasValidFormat(response: any): boolean {
+    public static toHealthChecks(application: Application, response: HealthChecksResponseFormat): HealthCheck[] {
         return Object.keys(response)
-                    .filter(key => response[key].healthy === undefined)
-                    .length === 0;
+                .map(name => new HealthCheck(name, application, this.toStatus(response[name].healthy)));
     }
 
-    public healthChecks: HealthCheck[];
-
-    private constructor(
-        public application: Application,
-        public unreachable: boolean,
-        public response?: HealthChecksResponseFormat
-    ) {
-        this.healthChecks = unreachable
-            ? this.mapToUnreachable(application)
-            : this.mapToHealthChecks(response, application);
-    }
-
-    public getUnHealthyChecks(): HealthCheck[] {
-        return this.healthChecks.filter(check => !check.isHealthy());
-    }
-
-    private mapToHealthChecks(res: HealthChecksResponseFormat, application: Application): HealthCheck[] {
-        return Object.keys(res)
-                .map(name => new HealthCheck(name, application, this.toStatus(res[name].healthy)));
-    }
-
-    private mapToUnreachable(application: Application): HealthCheck[] {
+    private static toUnreachable(application: Application): HealthCheck[] {
         return [new HealthCheck("unreachable", application, HealthStatus.UnReachable)];
     }
 
-    private toStatus(healthy: boolean): HealthStatus {
+    private static toStatus(healthy: boolean): HealthStatus {
         return healthy ? HealthStatus.Healthy : HealthStatus.Unhealthy;
+    }
+
+    private constructor(
+        public application: Application,
+        public healthChecks: HealthCheck[]
+    ) {}
+
+    public getUnHealthyChecks(): HealthCheck[] {
+        return this.healthChecks.filter(check => !check.isHealthy());
     }
 }
 
@@ -72,7 +59,43 @@ export class CombinedHealthCheck {
 };
 
 export class HealthCheckMapper {
-    public static combineHealthChecks(healthChecks: HealthCheck[]): CombinedHealthCheck[] {
+
+    /*
+    * CREATE HEALTHCHECKSRESPONSE
+    */
+
+    public toHealthChecksResponse(response: any, application: Application): HealthChecksResponse {
+        return this.isValidHealthCheckResponse(response)
+            ? HealthChecksResponse.fromResponse(application, response.json())
+            : HealthChecksResponse.fromResponse(application);
+    }
+
+    private isValidHealthCheckResponse(response: any): boolean {
+        return this.isValidJSON(response) && this.isValidFormat(response.json());
+    }
+
+    private isValidJSON(response: any): boolean {
+        try { response.json(); return true; } catch(e) { return false; }
+    }
+
+    private isValidFormat(response: any): boolean {
+        return Object.keys(response)
+                    .filter(key => ! this.isValidKey(response, key))
+                    .length === 0;
+    }
+
+    private isValidKey(response: any, key: string): boolean {
+        return response[key] !== null 
+            && response[key] !== undefined
+            && response[key].healthy !== null 
+            && response[key].healthy !== undefined
+    }
+
+    /*
+    * COMBINE HEALTHCHECKS
+    */
+
+    public combineHealthChecks(healthChecks: HealthCheck[]): CombinedHealthCheck[] {
         let combined : Map<string, HealthCheck[]> = new Map();
 
         healthChecks.forEach(healthCheck => {

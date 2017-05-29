@@ -13,9 +13,12 @@ import 'rxjs';
 @Injectable()
 export class HealthChecksService {
 
-  constructor(
-    @Inject(Http) private http,
-  ) { }
+  private static readonly HTTP_TIMEOUT = 10 * 1000;
+  private healthCheckMapper: HealthCheckMapper;
+
+  constructor(@Inject(Http) private http) { 
+    this.healthCheckMapper = new HealthCheckMapper();
+  }
 
   getHealthChecks(environment: Environment): Observable<CombinedHealthCheck[]> {
     return Observable.from(environment.applications)
@@ -30,21 +33,21 @@ export class HealthChecksService {
             .toArray()
             .map(
               (healthChecks: HealthCheck[]) => {
-                return HealthCheckMapper.combineHealthChecks(healthChecks);
+                return this.healthCheckMapper.combineHealthChecks(healthChecks);
               })
             .share();
   }
 
   private getHealthCheckResponse(application: Application): Observable<HealthChecksResponse> {
     return this.http.get(application.healthCheckUrl)
-      .timeout(10000, new Error('timeout exceeded'))
-      .flatMap(res => this.toHealthChecksResponse(res, application))
-      .catch(err => this.toHealthChecksResponse(err, application));
+      .timeout(HealthChecksService.HTTP_TIMEOUT)
+      .flatMap(response => this.toHealthChecksResponse(response, application))
+      .catch(error => this.toHealthChecksResponse(error, application));
   }
 
-  private toHealthChecksResponse(res: any, application: Application): Observable<HealthChecksResponse> {
-    let body: any = res.json ? res.json() : res;
-    let healthCheckResponse: HealthChecksResponse = HealthChecksResponse.fromResponse(body, application);
-    return Observable.of(healthCheckResponse);
+  private toHealthChecksResponse(response: any, application: Application): Observable<HealthChecksResponse> {
+    return Observable.of(
+      this.healthCheckMapper.toHealthChecksResponse(response, application)
+    );
   }
 }
