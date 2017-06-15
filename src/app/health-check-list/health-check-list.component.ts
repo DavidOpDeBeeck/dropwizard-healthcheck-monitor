@@ -11,7 +11,7 @@ import { CombinedHealthCheck } from './../models/health-check';
         [healthCheck]="healthCheck"
         *ngFor="let healthCheck of healthChecks | async">
     </health-check-detail>
-    <span class="time" [innerHtml]="currentTime"></span>
+    <span class="time">update in {{ refreshCount - countdown }} seconds</span>
   `,
   styleUrls: ['./health-check-list.component.sass']
 })
@@ -19,14 +19,26 @@ export class HealthCheckListComponent implements OnInit {
 
   @Input() healthChecks: Observable<CombinedHealthCheck[]>;
   @HostBinding('class') status: string;
-  currentTime: string;
+
+  countdown: number = 0;
+  refreshCount: number = 60;
 
   constructor() { }
 
   ngOnInit() {
+    this.initCountdown();
+    this.initHealthChecks();
+  }
+
+  initCountdown() {
+    Observable.timer(0, 1000)
+        .forEach(() => this.updateCountDown());
+  }
+
+  initHealthChecks() {
     this.healthChecks
       .subscribe(healthChecks => {
-        this.updateTime();
+        this.resetCountDown();
         this.updateStatus(healthChecks);
       });
   }
@@ -35,11 +47,11 @@ export class HealthCheckListComponent implements OnInit {
     this.status = healthChecks.length > 0 ? 'has-issues' : 'has-no-issues';
   }
 
-  updateTime() {
-    let date = new Date();
-    let hour = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-    this.currentTime = `${hour}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+  resetCountDown() {
+    this.countdown = 0;
+  }
+
+  updateCountDown() {
+    this.countdown++;
   }
 }
