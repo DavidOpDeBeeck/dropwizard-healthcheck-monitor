@@ -5,14 +5,19 @@
     animation-direction: normal
 
 \:host
+    background-image: url("/assets/pattern.png");
     &.unhealthy
         @include blinking-mixin(blink-unhealthy)
         .applications
             background-color: #bc2e29
+            border-bottom: 1px solid #922420
+            box-shadow: 0 1px 1px -1px #922420
     &.unreachable
         @include blinking-mixin(blink-unreachable)
         .applications
             background-color: #eb9114
+            border-bottom: 1px solid #bc7410
+            box-shadow: 0 1px 1px -1px #bc7410
 
 section
     padding: 10px
