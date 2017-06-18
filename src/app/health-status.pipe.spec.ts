@@ -1,5 +1,5 @@
 import { HealthStatusPipe } from './health-status.pipe';
-import { HealthStatus } from './models/health-status';
+import { HealthStatus } from './core/health-status';
 
 describe('HealthStatusPipe', () => {
 

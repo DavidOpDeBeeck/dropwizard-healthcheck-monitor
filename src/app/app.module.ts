@@ -11,7 +11,7 @@ import { EnvironmentDetailComponent } from './environment-detail/environment-det
 import { HealthCheckListComponent } from './health-check-list/health-check-list.component';
 import { HealthCheckDetailComponent } from './health-check-detail/health-check-detail.component';
 
-import { APP_ROUTES } from './app.routes';
+import { appRoutes } from './app.routes';
 import { EnvironmentsService } from './environments.service';
 import { HealthChecksService } from './health-checks.service';
 import { HealthStatusPipe } from './health-status.pipe';
@@ -32,7 +32,7 @@ import { StartCasePipe } from './start-case.pipe';
     FormsModule,
     HttpModule,
     FlexLayoutModule,
-    RouterModule.forRoot(APP_ROUTES)
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [EnvironmentsService, HealthChecksService, HealthStatusPipe],
   bootstrap: [AppComponent]

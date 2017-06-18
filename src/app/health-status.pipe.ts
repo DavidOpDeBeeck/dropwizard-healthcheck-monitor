@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { toHealthStatusValue } from './models/health-status';
+import { toHealthStatusValue } from './core/health-status';
 
 @Pipe({
   name: 'healthStatus'

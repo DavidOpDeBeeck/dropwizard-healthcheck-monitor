@@ -2,10 +2,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { Environment } from './../models/environment';
-import { Application } from './../models/application';
-import { HealthStatus } from './../models/health-status';
-import { CombinedHealthCheck } from './../models/health-check';
+import { Environment } from './../core/environment';
+import { Application } from './../core/application';
+import { HealthStatus } from './../core/health-status';
+import { CombinedHealthCheck } from './../core/health-check';
 
 import { EnvironmentListComponent } from './environment-list.component';
 import { EnvironmentDetailComponent } from './../environment-detail/environment-detail.component';
@@ -15,21 +15,9 @@ import { EnvironmentsService } from './../environments.service';
 import { HealthChecksService } from './../health-checks.service';
 import { StartCasePipe } from './../start-case.pipe'
 
-const APPLICATION : Application = {
-  name: "application",
-  healthCheckUrl: "url"
-};
-
-const ENVIRONMENT : Environment = {
-    name: "environment",
-    applications: [APPLICATION]
-};
-
-const HEALTH_CHECK : CombinedHealthCheck = {
-  name: "application",
-  applications: [APPLICATION],
-  status: HealthStatus.Unhealthy
-};
+const application: Application = { name: "application", healthCheckUrl: "url" };
+const environment: Environment = { name: "environment", applications: [application] };
+const healthCheck: CombinedHealthCheck = { name: "application", applications: [application], status: HealthStatus.Unhealthy };
 
 class DummyEnvironmentsService extends EnvironmentsService {
   constructor() {
@@ -37,7 +25,7 @@ class DummyEnvironmentsService extends EnvironmentsService {
   }
 
   getEnvironments() : Observable<Array<Environment>> {
-    return Observable.of([ENVIRONMENT]);
+    return Observable.of([environment]);
   }
 }
 
@@ -47,7 +35,7 @@ class DummyHealthChecksService extends HealthChecksService {
   }
 
   getHealthChecks() : Observable<Array<CombinedHealthCheck>> {
-    return Observable.of([HEALTH_CHECK]);
+    return Observable.of([healthCheck]);
   }
 }
 
@@ -84,7 +72,7 @@ describe('EnvironmentListComponent', () => {
   it('should load the environments from the EnvironmentsService', () => {
     component.environments.subscribe(environments => {
       let actual = JSON.stringify(environments);
-      let expected = JSON.stringify([ENVIRONMENT]);
+      let expected = JSON.stringify([environment]);
 
       expect(actual).toEqual(expected);
     });

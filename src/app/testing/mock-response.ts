@@ -1,23 +1,28 @@
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { Response, ResponseOptions, ResponseType, RequestMethod } from '@angular/http';
+import { Response, Request, ResponseOptions, ResponseType, RequestMethod } from '@angular/http';
 
 class ErrorResponse extends Response implements Error {
     name: any
     message: any
 }
 
+export class MockResponse extends Response {
+    constructor(response: any) {
+        super(new ResponseOptions({ status: 200, body: JSON.stringify(response) }));
+    }
+}
+
 export class MockBackendBuilder {
 
-    public static mockBackend(mockBackend: MockBackend): MockBackendBuilder {
+    public static withMockBackend(mockBackend: MockBackend): MockBackendBuilder {
         return new MockBackendBuilder(mockBackend);
     }
 
     private mockBackend: MockBackend;
     private url: string;
     private method: RequestMethod = RequestMethod.Get;
-    private response: any;
+    private response: string;
     private status: number = 200;
-    private fail: boolean = false;
 
     constructor(mockBackend: MockBackend) {
         this.mockBackend = mockBackend;
@@ -34,7 +39,7 @@ export class MockBackendBuilder {
     }
 
     public withResponse(response: any): MockBackendBuilder {
-        this.response = response;
+        this.response = JSON.stringify(response);
         return this;
     }
 
@@ -44,33 +49,30 @@ export class MockBackendBuilder {
     }
 
     public withFail(): MockBackendBuilder {
-        this.fail = true;
-        return this;
+        return this
+            .withStatus(500)
+            .withResponse("request was expected to fail");
     }
 
     public build() {
         this.mockBackend.connections.subscribe((connection: MockConnection) => {
-            let request = connection.request;
-
-            if (request.url !== this.url || request.method !== this.method) {
-                connection.mockError(new Error(`expected request on url: ${this.url} with method: ${this.method}`)); 
-                return;
-            }
-
-            if (this.fail) {
-                connection.mockError(new Error("expected to fail")); 
-                return;
-            }
-
-            let body = JSON.stringify(this.response);
+            this.checkRequestExpectation(connection);
 
             if (this.status !== 200) {
-                let opts = { type: ResponseType.Error, status: this.status, body: body };
+                let opts = { type: ResponseType.Error, status: this.status, body: this.response };
                 connection.mockError(new ErrorResponse(new ResponseOptions(opts)));
             } else {
-                let opts = { status: this.status, body: body };
+                let opts = { status: this.status, body: this.response };
                 connection.mockRespond(new Response(new ResponseOptions(opts)));
             }
         });
+    }
+
+    private checkRequestExpectation(connection: MockConnection): void {
+        let request: Request = connection.request;
+
+        if (request.url !== this.url || request.method !== this.method) {
+            connection.mockError(new Error(`expected request on url: ${this.url} with method: ${this.method}`)); 
+        }
     }
 } 

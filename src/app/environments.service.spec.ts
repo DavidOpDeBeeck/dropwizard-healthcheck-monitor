@@ -1,20 +1,17 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { MockBackendBuilder } from './testing/mock-backend-builder';
+import { MockBackendBuilder } from './testing/mock-response';
 
-import { Environment, EnvironmentResponseFormat } from './models/environment'
+import { Environment } from './core/environment'
+import { EnvironmentResponseFormat } from './core/environment-response'
+import { Application } from './core/application'
 
 import { EnvironmentsService } from './environments.service';
 
-const APPLICATION = {
-    name: "application",
-    healthCheckUrl: "url"
-};
-const ENVIRONMENTS_URL: string = "./assets/environments.json";
-const ENVIRONMENTS_RESPONSE : EnvironmentResponseFormat = {
-  "environment" : [APPLICATION]
-};
+const application: Application = new Application("application", "url");
+const environmentsUrl: string = "./assets/environments.json";
+const environmentsResponse: EnvironmentResponseFormat = { "environment" : [application] };
 
 describe('EnvironmentService', () => {
   beforeEach(() => {
@@ -37,9 +34,9 @@ describe('EnvironmentService', () => {
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(ENVIRONMENTS_URL)
-        .withResponse(ENVIRONMENTS_RESPONSE)
+        .withMockBackend(mockBackend)
+        .withUrl(environmentsUrl)
+        .withResponse(environmentsResponse)
         .withStatus(200)
         .build();
 
@@ -48,7 +45,7 @@ describe('EnvironmentService', () => {
           expect(environments.length).toEqual(1);
 
           expect(environments[0].name).toEqual("environment");
-          expect(environments[0].applications).toEqual([APPLICATION]);
+          expect(environments[0].applications).toEqual([application]);
         },
         (error) => {
           fail(error); 
@@ -59,8 +56,8 @@ describe('EnvironmentService', () => {
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(ENVIRONMENTS_URL)
+        .withMockBackend(mockBackend)
+        .withUrl(environmentsUrl)
         .withFail()
         .build();
 

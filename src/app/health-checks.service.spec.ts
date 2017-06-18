@@ -1,38 +1,29 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule, Http, Response, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { MockBackendBuilder } from './testing/mock-backend-builder';
+import { MockBackendBuilder } from './testing/mock-response';
 
-import { Environment } from './models/environment';
-import { Application } from './models/application';
-import { HealthStatus } from './models/health-status';
-import { HealthCheck, HealthChecksResponseFormat } from './models/health-check';
+import { Environment } from './core/environment';
+import { Application } from './core/application';
+import { HealthStatus } from './core/health-status';
+import { HealthChecksResponseFormat } from './core/health-check-response';
+import { HealthCheck } from './core/health-check';
 
 import { HealthChecksService } from './health-checks.service';
 
-const APPLICATION_URL = "/url/healthcheck.json";
-const APPLICATION = new Application("application", APPLICATION_URL);
-const ENVIRONMENT = new Environment("environment", [APPLICATION]);
-const UNHEALTHY_REPONSE: HealthChecksResponseFormat = {
-  "healthyHealthCheckName": {
-      healthy: true
-  },
-  "unhealthyHealthCheckName": {
-      healthy: false
-  },
-  "anotherunhealthyHealthCheckName": {
-      healthy: false
-  }
+const applicationUrl: string = "/url/healthcheck.json";
+const application: Application = new Application("application", applicationUrl);
+const environment: Environment = new Environment("environment", [application]);
+const unhealthyReponse: HealthChecksResponseFormat = {
+  "healthyHealthCheckName": { healthy: true },
+  "unhealthyHealthCheckName": { healthy: false },
+  "anotherunhealthyHealthCheckName": { healthy: false }
 };
-const HEALTHY_REPONSE : HealthChecksResponseFormat = {
-  "healthyHealthCheckName": {
-      healthy: true
-  },
-  "unhealthyHealthCheckName": {
-      healthy: true
-  }
+const healthyResponse: HealthChecksResponseFormat = {
+  "healthyHealthCheckName": { healthy: true },
+  "unhealthyHealthCheckName": { healthy: true }
 };
-const INVALID_RESPONSE = {
+const invalidResponse: object = {
   "key1": {},
   "key2": []
 };
@@ -53,18 +44,18 @@ describe('HealthchecksService', () => {
       ]});
   });
 
-  describe('getHealthChecks', () => {
+  describe('getUnHealthChecks', () => {
     it('should return an empty Observable<HealthCheck[]> when the request is successful and the response is healthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
       
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(APPLICATION_URL)
-        .withResponse(HEALTHY_REPONSE)
+        .withMockBackend(mockBackend)
+        .withUrl(applicationUrl)
+        .withResponse(healthyResponse)
         .withStatus(200)
         .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe(
+      service.getUnHealthChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(0);
         },
@@ -77,22 +68,22 @@ describe('HealthchecksService', () => {
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(APPLICATION_URL)
-        .withResponse(UNHEALTHY_REPONSE)
+        .withMockBackend(mockBackend)
+        .withUrl(applicationUrl)
+        .withResponse(unhealthyReponse)
         .withStatus(200)
         .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe(
+      service.getUnHealthChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(2);
 
           expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
-          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].applications).toEqual([application]);
           expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
           
           expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
-          expect(healthChecks[1].applications).toEqual([APPLICATION]);
+          expect(healthChecks[1].applications).toEqual([application]);
           expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
         },
         (error) => {
@@ -104,22 +95,22 @@ describe('HealthchecksService', () => {
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(APPLICATION_URL)
-        .withResponse(UNHEALTHY_REPONSE)
+        .withMockBackend(mockBackend)
+        .withUrl(applicationUrl)
+        .withResponse(unhealthyReponse)
         .withStatus(500)
         .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe(
+      service.getUnHealthChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(2);
 
           expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
-          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].applications).toEqual([application]);
           expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
 
           expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
-          expect(healthChecks[1].applications).toEqual([APPLICATION]);
+          expect(healthChecks[1].applications).toEqual([application]);
           expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
         },
         (error) => {
@@ -131,18 +122,18 @@ describe('HealthchecksService', () => {
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(APPLICATION_URL)
-        .withResponse(INVALID_RESPONSE)
+        .withMockBackend(mockBackend)
+        .withUrl(applicationUrl)
+        .withResponse(invalidResponse)
         .withStatus(500)
         .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe(
+      service.getUnHealthChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(1);
 
           expect(healthChecks[0].name).toEqual("unreachable");
-          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].applications).toEqual([application]);
           expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
         },
         (error) => {
@@ -154,17 +145,17 @@ describe('HealthchecksService', () => {
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
       MockBackendBuilder
-        .mockBackend(mockBackend)
-        .withUrl(APPLICATION_URL)
+        .withMockBackend(mockBackend)
+        .withUrl(applicationUrl)
         .withFail()
         .build();
 
-      service.getHealthChecks(ENVIRONMENT).subscribe(
+      service.getUnHealthChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(1);
 
           expect(healthChecks[0].name).toEqual("unreachable");
-          expect(healthChecks[0].applications).toEqual([APPLICATION]);
+          expect(healthChecks[0].applications).toEqual([application]);
           expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
         },
         (error) => {

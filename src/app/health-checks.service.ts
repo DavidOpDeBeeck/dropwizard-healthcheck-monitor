@@ -3,51 +3,45 @@ import { Inject } from '@angular/core';
 import { Http } from '@angular/http';
 import { Observable } from 'rxjs';
 
-import { Application } from './models/application'
-import { Environment } from './models/environment'
-import { HealthStatus } from './models/health-status'
-import { HealthCheck, CombinedHealthCheck, HealthChecksResponse, HealthCheckMapper } from './models/health-check'
+import { AppSettings } from './app.settings'
+import { Application } from './core/application'
+import { Environment } from './core/environment'
+import { HealthStatus } from './core/health-status'
+import { HealthChecksResponse, HealthChecksResponseParser } from './core/health-check-response'
+import { HealthCheck, CombinedHealthCheck, HealthCheckMapper } from './core/health-check'
 
 import 'rxjs';
 
 @Injectable()
 export class HealthChecksService {
 
-  private static readonly HTTP_TIMEOUT = 10 * 1000;
-  private healthCheckMapper: HealthCheckMapper;
+  private mapper: HealthCheckMapper;
+  private responseParser: HealthChecksResponseParser;
 
   constructor(@Inject(Http) private http) { 
-    this.healthCheckMapper = new HealthCheckMapper();
+    this.mapper = new HealthCheckMapper();
+    this.responseParser = new HealthChecksResponseParser();
   }
 
-  getHealthChecks(environment: Environment): Observable<CombinedHealthCheck[]> {
+  getUnHealthChecks(environment: Environment): Observable<CombinedHealthCheck[]> {
     return Observable.from(environment.applications)
-            .flatMap(
-              (application: Application) => {
-                return this.getHealthCheckResponse(application);
-              })
-            .flatMap(
-              (response: HealthChecksResponse) => {
-                return response.getUnHealthyChecks();
-              })
+            .flatMap(application => this.getHealthCheckResponse(application))
+            .flatMap(response => response.getUnHealthyChecks())
             .toArray()
-            .map(
-              (healthChecks: HealthCheck[]) => {
-                return this.healthCheckMapper.combineHealthChecks(healthChecks);
-              })
+            .map(healthChecks => this.mapper.combine(healthChecks))
             .share();
   }
 
   private getHealthCheckResponse(application: Application): Observable<HealthChecksResponse> {
     return this.http.get(application.healthCheckUrl)
-      .timeout(HealthChecksService.HTTP_TIMEOUT)
+      .timeout(AppSettings.httpTimeout)
       .flatMap(response => this.toHealthChecksResponse(response, application))
       .catch(error => this.toHealthChecksResponse(error, application));
   }
 
   private toHealthChecksResponse(response: any, application: Application): Observable<HealthChecksResponse> {
     return Observable.of(
-      this.healthCheckMapper.toHealthChecksResponse(response, application)
+      this.responseParser.parseResponse(response, application)
     );
   }
 }

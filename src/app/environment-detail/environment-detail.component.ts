@@ -2,10 +2,10 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Observable, Subscriber } from 'rxjs/Rx';
 
 import { HealthChecksService } from './../health-checks.service';
-import { Environment } from './../models/environment';
-import { Application } from './../models/application';
-import { HealthStatus } from './../models/health-status';
-import { HealthCheck, CombinedHealthCheck } from './../models/health-check';
+import { Environment } from './../core/environment';
+import { Application } from './../core/application';
+import { HealthStatus } from './../core/health-status';
+import { HealthCheck, CombinedHealthCheck } from './../core/health-check';
 
 import 'rxjs';
 
@@ -32,7 +32,7 @@ export class EnvironmentDetailComponent implements OnInit {
   ngOnInit() {
     this.healthChecks = Observable.timer(0, 60000)
         .flatMap(
-          () => this.healthChecksService.getHealthChecks(this.environment))
+          () => this.healthChecksService.getUnHealthChecks(this.environment))
         .share();
   }
 }

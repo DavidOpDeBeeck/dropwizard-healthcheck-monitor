@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, Input, HostBinding, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { CombinedHealthCheck } from './../models/health-check';
+import { CombinedHealthCheck } from './../core/health-check';
 
 @Component({
   selector: 'health-check-list',
@@ -11,7 +11,7 @@ import { CombinedHealthCheck } from './../models/health-check';
         [healthCheck]="healthCheck"
         *ngFor="let healthCheck of healthChecks | async">
     </health-check-detail>
-    <span class="time">update in {{ refreshCount - countdown }} seconds</span>
+    <span class="time" [innerHtml]="lastUpdatedTime"></span>
   `,
   styleUrls: ['./health-check-list.component.sass']
 })
@@ -19,26 +19,14 @@ export class HealthCheckListComponent implements OnInit {
 
   @Input() healthChecks: Observable<CombinedHealthCheck[]>;
   @HostBinding('class') status: string;
-
-  countdown: number = 0;
-  refreshCount: number = 60;
+  lastUpdatedTime: string;
 
   constructor() { }
 
   ngOnInit() {
-    this.initCountdown();
-    this.initHealthChecks();
-  }
-
-  initCountdown() {
-    Observable.timer(0, 1000)
-        .forEach(() => this.updateCountDown());
-  }
-
-  initHealthChecks() {
     this.healthChecks
       .subscribe(healthChecks => {
-        this.resetCountDown();
+        this.updateLastUpdatedTime(new Date());
         this.updateStatus(healthChecks);
       });
   }
@@ -47,11 +35,11 @@ export class HealthCheckListComponent implements OnInit {
     this.status = healthChecks.length > 0 ? 'has-issues' : 'has-no-issues';
   }
 
-  resetCountDown() {
-    this.countdown = 0;
-  }
-
-  updateCountDown() {
-    this.countdown++;
+  updateLastUpdatedTime(lastUpdatedTime: Date) {
+    let hour = lastUpdatedTime.getHours();
+    let minutes = lastUpdatedTime.getMinutes();
+    let seconds = lastUpdatedTime.getSeconds();
+    console.log(seconds);
+    this.lastUpdatedTime = `${hour}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   }
 }
