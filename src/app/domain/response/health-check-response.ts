@@ -1,6 +1,6 @@
-import { Application } from './application';
-import { HealthCheck } from './health-check';
-import { HealthStatus } from './health-status';
+import { Application } from './../application';
+import { HealthCheck } from './../health-check';
+import { HealthStatus } from './../health-status';
 
 export interface HealthChecksResponseFormat {
     [name: string]: {

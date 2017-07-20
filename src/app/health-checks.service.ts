@@ -4,11 +4,11 @@ import { Http } from '@angular/http';
 import { Observable } from 'rxjs';
 
 import { AppSettings } from './app.settings'
-import { Application } from './core/application'
-import { Environment } from './core/environment'
-import { HealthStatus } from './core/health-status'
-import { HealthChecksResponse, HealthChecksResponseParser } from './core/health-check-response'
-import { HealthCheck, CombinedHealthCheck, HealthCheckMapper } from './core/health-check'
+import { Application } from './domain/application'
+import { Environment } from './domain/environment'
+import { HealthStatus } from './domain/health-status'
+import { HealthChecksResponse, HealthChecksResponseParser } from './domain/response/health-check-response'
+import { HealthCheck, CombinedHealthCheck, HealthCheckMapper } from './domain/health-check'
 
 import 'rxjs';
 

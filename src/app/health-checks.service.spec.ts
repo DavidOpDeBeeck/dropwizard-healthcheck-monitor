@@ -3,11 +3,11 @@ import { HttpModule, Http, Response, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 import { MockBackendBuilder } from './testing/mock-response';
 
-import { Environment } from './core/environment';
-import { Application } from './core/application';
-import { HealthStatus } from './core/health-status';
-import { HealthChecksResponseFormat } from './core/health-check-response';
-import { HealthCheck } from './core/health-check';
+import { Environment } from './domain/environment';
+import { Application } from './domain/application';
+import { HealthStatus } from './domain/health-status';
+import { HealthChecksResponseFormat } from './domain/response/health-check-response';
+import { HealthCheck } from './domain/health-check';
 
 import { HealthChecksService } from './health-checks.service';
 

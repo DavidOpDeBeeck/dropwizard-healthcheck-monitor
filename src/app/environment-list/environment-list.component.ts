@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { EnvironmentsService } from './../environments.service';
-import { Environment } from './../core/environment';
+import { Environment } from './../domain/environment';
 
 @Component({
   selector: 'environment-list',

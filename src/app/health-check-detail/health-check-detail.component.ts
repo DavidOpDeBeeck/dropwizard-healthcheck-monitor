@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
 
-import { HealthStatus } from './../core/health-status';
-import { CombinedHealthCheck } from './../core/health-check';
+import { HealthStatus } from './../domain/health-status';
+import { CombinedHealthCheck } from './../domain/health-check';
 import { HealthStatusPipe } from './../health-status.pipe';
 
 @Component({

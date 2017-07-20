@@ -3,9 +3,9 @@ import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from 
 import { MockBackend, MockConnection } from '@angular/http/testing';
 import { MockBackendBuilder } from './testing/mock-response';
 
-import { Environment } from './core/environment'
-import { EnvironmentResponseFormat } from './core/environment-response'
-import { Application } from './core/application'
+import { Environment } from './domain/environment'
+import { EnvironmentResponseFormat } from './domain/response/environment-response'
+import { Application } from './domain/application'
 
 import { EnvironmentsService } from './environments.service';
 

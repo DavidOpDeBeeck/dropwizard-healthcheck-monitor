@@ -1,5 +1,5 @@
-import { Application } from './application';
-import { Environment } from './environment';
+import { Application } from './../application';
+import { Environment } from './../environment';
 
 export interface EnvironmentResponseFormat {
     [name: string]: Application[]

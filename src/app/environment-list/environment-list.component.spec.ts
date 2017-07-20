@@ -2,10 +2,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { Environment } from './../core/environment';
-import { Application } from './../core/application';
-import { HealthStatus } from './../core/health-status';
-import { CombinedHealthCheck } from './../core/health-check';
+import { Environment } from './../domain/environment';
+import { Application } from './../domain/application';
+import { HealthStatus } from './../domain/health-status';
+import { CombinedHealthCheck } from './../domain/health-check';
 
 import { EnvironmentListComponent } from './environment-list.component';
 import { EnvironmentDetailComponent } from './../environment-detail/environment-detail.component';

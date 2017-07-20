@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, Input, HostBinding, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { CombinedHealthCheck } from './../core/health-check';
+import { CombinedHealthCheck } from './../domain/health-check';
 
 @Component({
   selector: 'health-check-list',
@@ -39,7 +39,7 @@ export class HealthCheckListComponent implements OnInit {
     let hour = lastUpdatedTime.getHours();
     let minutes = lastUpdatedTime.getMinutes();
     let seconds = lastUpdatedTime.getSeconds();
-    console.log(seconds);
+    
     this.lastUpdatedTime = `${hour}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   }
 }

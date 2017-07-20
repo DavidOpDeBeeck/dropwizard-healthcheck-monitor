@@ -2,10 +2,10 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Observable, Subscriber } from 'rxjs/Rx';
 
 import { HealthChecksService } from './../health-checks.service';
-import { Environment } from './../core/environment';
-import { Application } from './../core/application';
-import { HealthStatus } from './../core/health-status';
-import { HealthCheck, CombinedHealthCheck } from './../core/health-check';
+import { Environment } from './../domain/environment';
+import { Application } from './../domain/application';
+import { HealthStatus } from './../domain/health-status';
+import { HealthCheck, CombinedHealthCheck } from './../domain/health-check';
 
 import 'rxjs';
 

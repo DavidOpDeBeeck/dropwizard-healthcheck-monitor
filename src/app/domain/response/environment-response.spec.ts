@@ -1,7 +1,7 @@
-import { MockResponse } from './../testing/mock-response';
+import { MockResponse } from './../../testing/mock-response';
 
-import { Application } from './application';
-import { Environment } from './environment';
+import { Application } from './../application';
+import { Environment } from './../environment';
 import { EnvironmentResponseFormat, EnvironmentResponse, EnvironmentResponseParser } from './environment-response';
 
 const application: Application = new Application("application", "url");

@@ -3,8 +3,8 @@ import { Inject } from '@angular/core';
 import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { Environment } from './core/environment'
-import { EnvironmentResponse, EnvironmentResponseParser } from './core/environment-response'
+import { Environment } from './domain/environment'
+import { EnvironmentResponse, EnvironmentResponseParser } from './domain/response/environment-response'
 
 import 'rxjs';
 

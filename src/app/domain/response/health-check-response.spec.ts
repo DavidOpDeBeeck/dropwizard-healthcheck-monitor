@@ -1,9 +1,9 @@
-import { Application } from './application';
-import { HealthCheck } from './health-check';
-import { HealthStatus } from './health-status';
+import { Application } from './../application';
+import { HealthCheck } from './../health-check';
+import { HealthStatus } from './../health-status';
 import { HealthChecksResponseFormat, HealthChecksResponse, HealthChecksResponseParser } from './health-check-response';
 
-import { MockResponse } from './../testing/mock-response';
+import { MockResponse } from './../../testing/mock-response';
 
 const application: Application = new Application("application", "anUrl");
 const validResponse: MockResponse = new MockResponse({ "aCheck": { "healthy": true }, "anotherCheck": { "healthy": false } });
