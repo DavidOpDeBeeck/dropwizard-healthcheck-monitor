@@ -1,7 +1,7 @@
 import { Application } from './../application';
 import { HealthCheck } from './../health-check';
 import { HealthStatus } from './../health-status';
-import { HealthChecksResponseFormat, HealthChecksResponse, HealthChecksResponseParser } from './health-check-response';
+import { HealthChecksResponseFormat, HealthChecksResponse, HealthChecksResponseParser } from './health-checks-response';
 
 import { MockResponse } from './../../testing/mock-response';
 

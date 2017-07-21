@@ -19,13 +19,10 @@ describe('HealthCheckMapper', () => {
     let combined = mapper.combine(healthChecks);
 
     expect(combined)
-        .toContain(
-            new CombinedHealthCheck("check1", [anApplication, anotherApplication], HealthStatus.Unhealthy));
-    expect(combined)
-        .toContain(
-            new CombinedHealthCheck("check2", [anApplication], HealthStatus.Unhealthy));
-    expect(combined)
-        .toContain(
-            new CombinedHealthCheck("check2", [anotherApplication], HealthStatus.UnReachable));
+        .toEqual([
+            new CombinedHealthCheck("check1", [anApplication, anotherApplication], HealthStatus.Unhealthy),
+            new CombinedHealthCheck("check2", [anApplication], HealthStatus.Unhealthy),
+            new CombinedHealthCheck("check2", [anotherApplication], HealthStatus.UnReachable)
+        ]);
   });
 });

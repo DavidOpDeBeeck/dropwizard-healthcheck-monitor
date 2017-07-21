@@ -28,24 +28,24 @@ export class CombinedHealthCheck {
 export class HealthCheckMapper {
     public combine(healthChecks: HealthCheck[]): CombinedHealthCheck[] {
         return []
-                .concat(this.createCombinedHealthChecks(HealthStatus.Unhealthy, healthChecks))
-                .concat(this.createCombinedHealthChecks(HealthStatus.UnReachable, healthChecks));
+                .concat(this.combineWithStatus(healthChecks, HealthStatus.Unhealthy))
+                .concat(this.combineWithStatus(healthChecks, HealthStatus.UnReachable));
     }
 
-    private createCombinedHealthChecks(status: HealthStatus, healthChecks: HealthCheck[]): CombinedHealthCheck[] {
-        let healthChecksWithStatus = healthChecks
-            .filter(check => check.status === status);
-
-        let uniqueHealthCheckNames : Set<string> 
-            = new Set(healthChecksWithStatus.map(check => check.name));
+    private combineWithStatus(healthChecks: HealthCheck[], status: HealthStatus): CombinedHealthCheck[] {
+        let healthChecksWithStatus: HealthCheck[] = 
+            healthChecks.filter(check => check.status === status);
+        let uniqueHealthCheckNames: Set<string> = 
+            new Set(healthChecksWithStatus.map(check => check.name));
 
         return Array.from(uniqueHealthCheckNames)
-            .map(name => this.createCombinedHealthCheck(name, status, healthChecksWithStatus));
+            .map(name => this.combineWithName(healthChecksWithStatus, name, status));
     }  
 
-    private createCombinedHealthCheck(name: string, status: HealthStatus, healthChecks: HealthCheck[]): CombinedHealthCheck {
+    private combineWithName(healthChecks: HealthCheck[], name: string, status: HealthStatus): CombinedHealthCheck {
         let healthChecksWithName: HealthCheck[] = healthChecks.filter(check => check.name === name);
         let applications: Application[] = healthChecksWithName.map(check => check.application);
+
         return new CombinedHealthCheck(name, applications, status);
     }
 };

@@ -15,29 +15,12 @@ import { EnvironmentsService } from './../environments.service';
 import { HealthChecksService } from './../health-checks.service';
 import { StartCasePipe } from './../start-case.pipe'
 
+import { DummyEnvironmentsService } from './../testing/dummy-environments-service'
+import { DummyHealthChecksService } from './../testing/dummy-health-checks-service'
+
 const application: Application = { name: "application", healthCheckUrl: "url" };
 const environment: Environment = { name: "environment", applications: [application] };
 const healthCheck: CombinedHealthCheck = { name: "application", applications: [application], status: HealthStatus.Unhealthy };
-
-class DummyEnvironmentsService extends EnvironmentsService {
-  constructor() {
-    super(null);
-  }
-
-  getEnvironments() : Observable<Array<Environment>> {
-    return Observable.of([environment]);
-  }
-}
-
-class DummyHealthChecksService extends HealthChecksService {
-  constructor() {
-    super(null);
-  }
-
-  getHealthChecks() : Observable<Array<CombinedHealthCheck>> {
-    return Observable.of([healthCheck]);
-  }
-}
 
 describe('EnvironmentListComponent', () => {
   let component: EnvironmentListComponent;
@@ -55,10 +38,10 @@ describe('EnvironmentListComponent', () => {
         providers: [ 
         {
           provide: EnvironmentsService,
-          useFactory: () => { return new DummyEnvironmentsService(); }
+          useFactory: () => { return DummyEnvironmentsService.withResponse([environment]); }
         },{
           provide: HealthChecksService,
-          useFactory: () => { return new DummyHealthChecksService(); }
+          useFactory: () => { return DummyHealthChecksService.withResponse([healthCheck]); }
         }]
     });
   }));

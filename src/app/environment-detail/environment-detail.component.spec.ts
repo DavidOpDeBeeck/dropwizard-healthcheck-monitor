@@ -13,22 +13,11 @@ import { HealthCheckDetailComponent } from './../health-check-detail/health-chec
 import { HealthChecksService } from './../health-checks.service';
 import { StartCasePipe } from './../start-case.pipe'
 
+import { DummyHealthChecksService } from './../testing/dummy-health-checks-service'
+
 const application: Application = { name: "application", healthCheckUrl: "url" };
 const environment: Environment = { name: "environment", applications: [application] };
 const healthCheck : CombinedHealthCheck = { name: "application", applications: [application], status: HealthStatus.Unhealthy };
-
-class DummyHealthChecksService extends HealthChecksService {
-  constructor() {
-    super(null);
-  }
-
-  getHealthChecks(environment : Environment) : Observable<Array<CombinedHealthCheck>> {
-    if (environment.name === environment.name) {
-      return Observable.of([healthCheck]);
-    }
-    return Observable.of([]);
-  }
-}
 
 describe('EnvironmentDetailComponent', () => {
   let component: EnvironmentDetailComponent;
@@ -45,7 +34,7 @@ describe('EnvironmentDetailComponent', () => {
         providers: [ 
         {
           provide: HealthChecksService,
-          useFactory: () => { return new DummyHealthChecksService(); }
+          useFactory: () => { return DummyHealthChecksService.withResponse([healthCheck]); }
         }]
     });
   }));

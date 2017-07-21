@@ -6,7 +6,7 @@ import { MockBackendBuilder } from './testing/mock-response';
 import { Environment } from './domain/environment';
 import { Application } from './domain/application';
 import { HealthStatus } from './domain/health-status';
-import { HealthChecksResponseFormat } from './domain/response/health-check-response';
+import { HealthChecksResponseFormat } from './domain/response/health-checks-response';
 import { HealthCheck } from './domain/health-check';
 
 import { HealthChecksService } from './health-checks.service';

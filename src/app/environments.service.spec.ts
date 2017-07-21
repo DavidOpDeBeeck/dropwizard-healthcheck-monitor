@@ -4,14 +4,14 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { MockBackendBuilder } from './testing/mock-response';
 
 import { Environment } from './domain/environment'
-import { EnvironmentResponseFormat } from './domain/response/environment-response'
+import { EnvironmentsResponseFormat } from './domain/response/environments-response'
 import { Application } from './domain/application'
 
 import { EnvironmentsService } from './environments.service';
 
 const application: Application = new Application("application", "url");
 const environmentsUrl: string = "./assets/environments.json";
-const environmentsResponse: EnvironmentResponseFormat = { "environment" : [application] };
+const environmentsResponse: EnvironmentsResponseFormat = { "environment" : [application] };
 
 describe('EnvironmentService', () => {
   beforeEach(() => {

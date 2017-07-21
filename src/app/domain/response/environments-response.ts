@@ -1,22 +1,22 @@
 import { Application } from './../application';
 import { Environment } from './../environment';
 
-export interface EnvironmentResponseFormat {
+export interface EnvironmentsResponseFormat {
     [name: string]: Application[]
 };
 
-export class EnvironmentResponse {
+export class EnvironmentsResponse {
     constructor(public environments: Environment[]) {}
 }
 
-export class EnvironmentResponseParser {
-    public parseResponse(response: any): EnvironmentResponse {
-        return this.isValidEnvironmentResponse(response)
-            ? new EnvironmentResponse(this.toEnvironments(response.json()))
-            : new EnvironmentResponse([]);
+export class EnvironmentsResponseParser {
+    public parseResponse(response: any): EnvironmentsResponse {
+        return this.isValidEnvironmentsResponse(response)
+            ? new EnvironmentsResponse(this.toEnvironments(response.json()))
+            : new EnvironmentsResponse([]);
     }
 
-    private isValidEnvironmentResponse(response: any): boolean {
+    private isValidEnvironmentsResponse(response: any): boolean {
         return this.isValidJSON(response) 
             && this.hasValidFormat(response.json());
     }
@@ -48,7 +48,7 @@ export class EnvironmentResponseParser {
             && application.healthCheckUrl !== null;
     }
 
-    private toEnvironments(response: EnvironmentResponseFormat): Environment[] {
+    private toEnvironments(response: EnvironmentsResponseFormat): Environment[] {
         let names: string[] = Object.keys(response);
         return names.map(name => new Environment(name, response[name].map(application => this.toApplication(application))));
     }

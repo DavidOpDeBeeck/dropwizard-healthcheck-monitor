@@ -4,17 +4,17 @@ import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { Environment } from './domain/environment'
-import { EnvironmentResponse, EnvironmentResponseParser } from './domain/response/environment-response'
+import { EnvironmentsResponse, EnvironmentsResponseParser } from './domain/response/environments-response'
 
 import 'rxjs';
 
 @Injectable()
 export class EnvironmentsService {
 
-  private parser: EnvironmentResponseParser;
+  private parser: EnvironmentsResponseParser;
 
   constructor(@Inject(Http) private http) {
-    this.parser = new EnvironmentResponseParser();
+    this.parser = new EnvironmentsResponseParser();
   }
 
   getEnvironments(): Observable<Environment[]> {
