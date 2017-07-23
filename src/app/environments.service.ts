@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Inject } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { Environment } from './domain/environment'
@@ -19,9 +19,9 @@ export class EnvironmentsService {
 
   getEnvironments(): Observable<Environment[]> {
     return this.http.get("./assets/environments.json")
-      .map(response => this.parser.parseResponse(response))
-      .map(response => response.environments)
-      .catch(err => Observable.of([]))
+      .map((response: Response) => this.parser.parseResponse(response))
+      .map((response: EnvironmentsResponse) => response.environments)
+      .catch(error => Observable.of([]))
       .share();
   }
 }

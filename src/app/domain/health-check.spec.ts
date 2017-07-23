@@ -1,6 +1,6 @@
 import { Application } from './application';
 import { HealthStatus } from './health-status';
-import { HealthCheck, CombinedHealthCheck, HealthCheckMapper } from './health-check';
+import { HealthCheck, CombinedHealthCheck, HealthCheckCombiner } from './health-check';
 
 const anApplication: Application = new Application("anApplication", "anUrl");
 const anotherApplication: Application = new Application("anotherApplication", "anotherUrl");
@@ -8,7 +8,7 @@ const anotherApplication: Application = new Application("anotherApplication", "a
 describe('HealthCheckMapper', () => {
 
   it('should group healthchecks with the same name and status', () => {
-    const mapper = new HealthCheckMapper();
+    const mapper = new HealthCheckCombiner();
     const healthChecks = [
         new HealthCheck("check1", anApplication, HealthStatus.Unhealthy),
         new HealthCheck("check2", anApplication, HealthStatus.Unhealthy),

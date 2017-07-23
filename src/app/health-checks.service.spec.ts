@@ -55,7 +55,7 @@ describe('HealthchecksService', () => {
         .withStatus(200)
         .build();
 
-      service.getUnHealthChecks(environment).subscribe(
+      service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(0);
         },
@@ -74,7 +74,7 @@ describe('HealthchecksService', () => {
         .withStatus(200)
         .build();
 
-      service.getUnHealthChecks(environment).subscribe(
+      service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(2);
 
@@ -101,7 +101,7 @@ describe('HealthchecksService', () => {
         .withStatus(500)
         .build();
 
-      service.getUnHealthChecks(environment).subscribe(
+      service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(2);
 
@@ -128,7 +128,7 @@ describe('HealthchecksService', () => {
         .withStatus(500)
         .build();
 
-      service.getUnHealthChecks(environment).subscribe(
+      service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(1);
 
@@ -150,7 +150,7 @@ describe('HealthchecksService', () => {
         .withFail()
         .build();
 
-      service.getUnHealthChecks(environment).subscribe(
+      service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {
           expect(healthChecks.length).toEqual(1);
 

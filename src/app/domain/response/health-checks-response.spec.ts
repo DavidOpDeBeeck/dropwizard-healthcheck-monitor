@@ -17,9 +17,10 @@ describe('HealthCheckResponseParser', () => {
       let response = parser.parseResponse(validResponse, application);
 
       expect(response.healthChecks)
-          .toContain(
-              new HealthCheck("aCheck", application, HealthStatus.Healthy),
-              new HealthCheck("anotherCheck", application, HealthStatus.Unhealthy));
+          .toEqual([
+            new HealthCheck("aCheck", application, HealthStatus.Healthy),
+            new HealthCheck("anotherCheck", application, HealthStatus.Unhealthy)
+          ]);
     });
 
     it('should create an unreachable response when the input is invalid', () => {
@@ -28,7 +29,9 @@ describe('HealthCheckResponseParser', () => {
       let response = parser.parseResponse(invalidResponse, application);
 
       expect(response.healthChecks)
-          .toContain(HealthCheck.unreachable(application));
+          .toEqual([
+            HealthCheck.unreachable(application)
+          ]);
     });
   });
 });

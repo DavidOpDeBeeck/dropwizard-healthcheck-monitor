@@ -25,7 +25,7 @@ export class CombinedHealthCheck {
     ) { }
 };
 
-export class HealthCheckMapper {
+export class HealthCheckCombiner {
     public combine(healthChecks: HealthCheck[]): CombinedHealthCheck[] {
         return []
                 .concat(this.combineWithStatus(healthChecks, HealthStatus.Unhealthy))
@@ -35,6 +35,7 @@ export class HealthCheckMapper {
     private combineWithStatus(healthChecks: HealthCheck[], status: HealthStatus): CombinedHealthCheck[] {
         let healthChecksWithStatus: HealthCheck[] = 
             healthChecks.filter(check => check.status === status);
+            
         let uniqueHealthCheckNames: Set<string> = 
             new Set(healthChecksWithStatus.map(check => check.name));
 
