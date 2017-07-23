@@ -5,7 +5,7 @@ import { HealthCheck, CombinedHealthCheck, HealthCheckCombiner } from './health-
 const anApplication: Application = new Application("anApplication", "anUrl");
 const anotherApplication: Application = new Application("anotherApplication", "anotherUrl");
 
-describe('HealthCheckMapper', () => {
+describe('HealthCheckCombiner', () => {
 
   it('should group healthchecks with the same name and status', () => {
     const mapper = new HealthCheckCombiner();

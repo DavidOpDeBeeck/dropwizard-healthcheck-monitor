@@ -44,7 +44,7 @@ describe('HealthchecksService', () => {
       ]});
   });
 
-  describe('getUnHealthChecks', () => {
+  describe('getUnHealthyChecks', () => {
     it('should return an empty Observable<HealthCheck[]> when the request is successful and the response is healthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
       
