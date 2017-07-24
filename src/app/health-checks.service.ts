@@ -25,16 +25,11 @@ export class HealthChecksService {
     const applications: Application[] = environment.applications;
 
     return Observable.from(applications)
-            .map((application: Application) => this.getUnHealthyChecksFromApplication(application))
-            .mergeAll()
+            .flatMap((application: Application) => this.getHealthChecksResponse(application))
+            .flatMap((response: HealthChecksResponse) => response.getUnHealthyChecks())
+            .toArray()
             .map((healthChecks: HealthCheck[]) => this.combiner.combine(healthChecks))
             .share();
-  }
-
-
-  private getUnHealthyChecksFromApplication(application: Application): Observable<HealthCheck[]> {
-    return this.getHealthChecksResponse(application)
-      .map((response: HealthChecksResponse) => response.getUnHealthyChecks());
   }
 
   private getHealthChecksResponse(application: Application): Observable<HealthChecksResponse> {

@@ -13,11 +13,18 @@ import { HealthChecksService } from './health-checks.service';
 
 const applicationUrl: string = "/url/healthcheck.json";
 const application: Application = new Application("application", applicationUrl);
+const anotherApplicationUrl: string = "/url/another/healthcheck.json";
+const anotherApplication: Application = new Application("anotherApplication", anotherApplicationUrl);
 const environment: Environment = new Environment("environment", [application]);
+const environmentWithMultipleApplications: Environment = new Environment("environmentWithMultipleApplications", [application, anotherApplication]);
 const unhealthyReponse: HealthChecksResponseFormat = {
   "healthyHealthCheckName": { healthy: true },
   "unhealthyHealthCheckName": { healthy: false },
   "anotherunhealthyHealthCheckName": { healthy: false }
+};
+const anotherUnhealthyReponse: HealthChecksResponseFormat = {
+  "healthyHealthCheckName": { healthy: true },
+  "yetAnotherunhealthyHealthCheckName": { healthy: false }
 };
 const healthyResponse: HealthChecksResponseFormat = {
   "healthyHealthCheckName": { healthy: true },
@@ -85,6 +92,41 @@ describe('HealthchecksService', () => {
           expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
           expect(healthChecks[1].applications).toEqual([application]);
           expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
+        },
+        (error) => {
+          fail(error); 
+        });
+    }));
+
+    it('should return an unhealthy Observable<HealthCheck[]> when the request is successful and the response is unhealthy with multiple applications', 
+        inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
+
+      MockResource
+        .withMockBackend(mockBackend)
+          .withUrl(applicationUrl)
+          .withResponse(unhealthyReponse)
+          .withStatus(200)
+        .and()
+          .withUrl(anotherApplicationUrl)
+          .withResponse(anotherUnhealthyReponse)
+          .withStatus(200)
+        .build();
+
+      service.getUnHealthyChecks(environmentWithMultipleApplications).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(3);
+
+          expect(healthChecks[0].name).toEqual("unhealthyHealthCheckName");
+          expect(healthChecks[0].applications).toEqual([application]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.Unhealthy);
+          
+          expect(healthChecks[1].name).toEqual("anotherunhealthyHealthCheckName");
+          expect(healthChecks[1].applications).toEqual([application]);
+          expect(healthChecks[1].status).toEqual(HealthStatus.Unhealthy);
+
+          expect(healthChecks[2].name).toEqual("yetAnotherunhealthyHealthCheckName");
+          expect(healthChecks[2].applications).toEqual([anotherApplication]);
+          expect(healthChecks[2].status).toEqual(HealthStatus.Unhealthy);
         },
         (error) => {
           fail(error); 

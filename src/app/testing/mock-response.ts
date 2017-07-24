@@ -19,11 +19,14 @@ export class MockResource {
     }
 
     private url: string;
-    private method: RequestMethod = RequestMethod.Get;
+    private method: RequestMethod;
     private response: string;
-    private status: number = 200;
+    private status: number;
+    private responseExpectations = {};
 
-    constructor(private mockBackend: MockBackend) { }
+    constructor(private mockBackend: MockBackend) { 
+        this.reset();
+    }
 
     public withUrl(url: string): MockResource {
         this.url = url;
@@ -51,24 +54,53 @@ export class MockResource {
             .withResponse("request was expected to fail");
     }
 
+    public and(): MockResource {
+        this.saveCurrentResponseExpectation();
+        this.reset();
+        return this;
+    }
+
+    private reset(): void {
+        this.url = '';
+        this.method = RequestMethod.Get;
+        this.response = '';
+        this.status = 200;
+    }
+
+    private saveCurrentResponseExpectation(): void {
+        if (this.status === 200) {
+            this.responseExpectations[this.url] = {
+                method: this.method,
+                options: { status: this.status, body: this.response }
+            };
+        } else {
+            this.responseExpectations[this.url] = {
+                method: this.method,
+                options: { type: ResponseType.Error, status: this.status, body: this.response }
+            };
+        }
+    }
+
     public build() {
+        this.saveCurrentResponseExpectation();
+        this.reset();
         this.mockBackend.connections.subscribe((connection: MockConnection) => {
             this.checkRequestExpectation(connection);
+            let opts = this.responseExpectations[connection.request.url].options;
 
-            if (this.status !== 200) {
-                let opts = { type: ResponseType.Error, status: this.status, body: this.response };
-                connection.mockError(new ErrorResponse(new ResponseOptions(opts)));
+            if (this.status === 200) {
+                connection.mockRespond(new Response(new ResponseOptions(opts)));                
             } else {
-                let opts = { status: this.status, body: this.response };
-                connection.mockRespond(new Response(new ResponseOptions(opts)));
+                connection.mockError(new ErrorResponse(new ResponseOptions(opts)));
             }
         });
     }
 
     private checkRequestExpectation(connection: MockConnection): void {
         let request: Request = connection.request;
+        let validUrls: string[] = Object.keys(this.responseExpectations);
 
-        if (request.url !== this.url || request.method !== this.method) {
+        if (validUrls.indexOf(request.url) === -1 && this.responseExpectations[request.url] === request.method) {
             connection.mockError(new Error(`expected request on url: ${this.url} with method: ${this.method}`)); 
         }
     }
