@@ -4,22 +4,11 @@ import { Application } from './../application';
 import { HealthCheck } from './../health-check';
 import { HealthStatus } from './../health-status';
 
-export interface HealthChecksResponseFormat {
-    [name: string]: {
-        healthy: boolean
-    }
-}
+import { DomainResponse, DomainResponseFormat, DomainResponseValidator, DomainResponseParser } from './domain-response';
 
-export class HealthChecksResponse {
-    public static valid(application: Application, healthChecks: HealthCheck[]): HealthChecksResponse {
-        return new HealthChecksResponse(application, healthChecks);
-    }
+export class HealthChecksResponse implements DomainResponse {
 
-    public static invalid(application: Application): HealthChecksResponse {
-        return new HealthChecksResponse(application, [HealthCheck.unreachable(application)]);
-    }
-  
-    private constructor(
+    constructor(
         public application: Application,
         public healthChecks: HealthCheck[]
     ) {}
@@ -27,61 +16,63 @@ export class HealthChecksResponse {
     public getUnHealthyChecks(): HealthCheck[] {
         return this.healthChecks.filter(check => !check.isHealthy());
     }
+
 }
 
-export class HealthChecksResponseParser {
+export interface HealthChecksResponseFormat extends DomainResponseFormat {
+    [name: string]: {
+        healthy: boolean
+    }
+}
 
-    private validator: HealthChecksResponseValidator;
-
-    constructor() {
-        this.validator = new HealthChecksResponseValidator();
+export class HealthChecksResponseParser extends DomainResponseParser<HealthChecksResponse, HealthChecksResponseFormat> {
+    
+    constructor(private application: Application) {
+        super(new HealthChecksResponseValidator());
     }
 
-    public parseResponse(response: Response, application: Application): HealthChecksResponse {
-        return this.validator.isValidResponse(response)
-            ? HealthChecksResponse.valid(application, this.extractHealthChecks(response.json(), application))
-            : HealthChecksResponse.invalid(application);
+    protected parseValid(response: HealthChecksResponseFormat): HealthChecksResponse {
+        return new HealthChecksResponse(this.application, this.extractHealthChecks(response))
+    }
+    protected parseInValid(response: object): HealthChecksResponse {
+        return new HealthChecksResponse(this.application, [HealthCheck.unreachable(this.application)]);
     }
 
-    private extractHealthChecks(response: HealthChecksResponseFormat, application: Application): HealthCheck[] {
-        return Object.keys(response)
-                .map(name => this.createHealthCheck(name, application, response[name].healthy));
+    private extractHealthChecks(response: HealthChecksResponseFormat): HealthCheck[] {
+        let healthCheckNames: string[] = Object.keys(response);
+
+        return healthCheckNames
+                .map(name => this.createHealthCheck(name, response[name].healthy));
     }
 
-    private createHealthCheck(name: string, application: Application, healthy: boolean): HealthCheck {
-        return new HealthCheck(name, application, this.toStatus(healthy));
+    private createHealthCheck(name: string, healthy: boolean): HealthCheck {
+        return new HealthCheck(name, this.application, this.toStatus(healthy));
     }
     
     private toStatus(healthy: boolean): HealthStatus {
         return healthy ? HealthStatus.Healthy : HealthStatus.Unhealthy;
-    }  
+    }
+    
 }
 
-class HealthChecksResponseValidator {
-    public isValidResponse(response: Response): boolean {
-        return this.hasValidJSON(response) && this.hasValidFormat(response.json());
+export class HealthChecksResponseValidator extends DomainResponseValidator {
+    
+    protected hasValidSchema(json: object): boolean {
+        return this.isDefined(json)
+            && this.hasValidHealthChecks(json);
     }
 
-    private hasValidJSON(response: Response): boolean {
-        try { response.json(); return true; } catch(e) { return false; }
+    private hasValidHealthChecks(json: object): boolean {
+        let healthCheckNames: string[] = Object.keys(json);
+
+        return healthCheckNames
+                    .map(name => this.isValidHealthCheck(json, name))
+                    .reduce(this.allElementsAreTruthy())
     }
 
-    private hasValidFormat(response: any): boolean {
-        return response !== undefined 
-            && response !== null 
-            && this.hasValidHealthChecks(response);
+    private isValidHealthCheck(json: object, healthCheckName: string): boolean {
+        return this.isDefined(json[healthCheckName])
+            && this.isDefinedWithType(json[healthCheckName].healthy, 'boolean');
     }
 
-    private hasValidHealthChecks(response: any): boolean {
-        return Object.keys(response)
-                    .filter(healthCheckName => ! this.isValidHealthCheck(response, healthCheckName))
-                    .length === 0;
-    }
-
-    private isValidHealthCheck(response: any, healthCheckName: string): boolean {
-        return response[healthCheckName] !== null 
-            && response[healthCheckName] !== undefined
-            && response[healthCheckName].healthy !== null 
-            && response[healthCheckName].healthy !== undefined
-    }
 }

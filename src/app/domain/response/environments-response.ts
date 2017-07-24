@@ -3,26 +3,28 @@ import { Response } from '@angular/http';
 import { Application } from './../application';
 import { Environment } from './../environment';
 
-export interface EnvironmentsResponseFormat {
-    [name: string]: Application[]
-};
+import { DomainResponse, DomainResponseFormat, DomainResponseParser, DomainResponseValidator } from "./domain-response";
 
-export class EnvironmentsResponse {
+export class EnvironmentsResponse implements DomainResponse {
     constructor(public environments: Environment[]) {}
 }
 
-export class EnvironmentsResponseParser {
+export interface EnvironmentsResponseFormat extends DomainResponseFormat {
+    [name: string]: Application[]
+};
 
-    private validator: EnvironmentsResponseValidator;
+export class EnvironmentsResponseParser extends DomainResponseParser<EnvironmentsResponse, EnvironmentsResponseFormat>  {
 
     constructor() {
-        this.validator = new EnvironmentsResponseValidator();
+        super(new EnvironmentsResponseValidator());
     }
 
-    public parseResponse(response: Response): EnvironmentsResponse {
-        return this.validator.isValidResponse(response)
-            ? new EnvironmentsResponse(this.extractEnvironments(response.json()))
-            : new EnvironmentsResponse([]);
+    protected parseValid(response: EnvironmentsResponseFormat): EnvironmentsResponse {
+        return new EnvironmentsResponse(this.extractEnvironments(response));
+    }
+
+    protected parseInValid(response: object): EnvironmentsResponse {
+        return new EnvironmentsResponse([]);
     }
 
     private extractEnvironments(response: EnvironmentsResponseFormat): Environment[] {
@@ -30,58 +32,52 @@ export class EnvironmentsResponseParser {
         return environmentNames.map(name => this.createEnvironment(name, response[name]));
     }
 
-    private createEnvironment(name: string, environment: any): Environment {
-        return new Environment(name, this.extractApplications(environment));
+    private createEnvironment(name: string, applications: any): Environment {
+        return new Environment(name, this.extractApplications(applications));
     }
 
-    private extractApplications(environment: any): Application[] {
-        return environment.map(application => this.createApplication(application));
+    private extractApplications(application: any): Application[] {
+        return application.map(application => this.createApplication(application));
     }
 
     private createApplication(application: any): Application {
         return new Application(application.name, application.healthCheckUrl);
     }
+
 }
 
-class EnvironmentsResponseValidator {
-    public isValidResponse(response: Response): boolean {
-        return this.hasValidJSON(response) && this.hasValidFormat(response.json());
+export class EnvironmentsResponseValidator extends DomainResponseValidator {
+
+    protected hasValidSchema(json: object): boolean {
+        return this.isDefined(json)
+            && this.hasValidEnvironments(json);
     }
 
-    private hasValidJSON(response: Response): boolean {
-        try { response.json(); return true; } catch(e) { return false; }
+    private hasValidEnvironments(json: object): boolean {
+        let environmentNames: string[] = Object.keys(json);
+
+        return environmentNames
+                .map(name => this.isValidEnvironment(json[name]))
+                .reduce(this.allElementsAreTruthy());
     }
 
-    private hasValidFormat(response: any): boolean {
-        return response !== undefined
-            && response !== null
-            && this.hasValidEnvironments(response);
-    }
-
-    private hasValidEnvironments(response: any): boolean {
-        return Object.keys(response)
-                .filter(environmentName => ! this.isValidEnvironment(response[environmentName]))
-                .length === 0;
-    }
-
-    private isValidEnvironment(environment: any): boolean {
-        return environment !== undefined 
-            && environment !== null 
+    private isValidEnvironment(environment: object): boolean {
+        return this.isDefined(environment)
             && this.hasValidApplications(environment);
     }
     
-    private hasValidApplications(environment: any): boolean {
-        return Object.keys(environment)
-                .filter(application => ! this.isValidApplication(environment[application]))
-                .length === 0;
+    private hasValidApplications(environment: object): boolean {
+        let applicationIndexes: string[] = Object.keys(environment);
+
+        return applicationIndexes
+                .map(index => this.isValidApplication(environment[index]))
+                .reduce(this.allElementsAreTruthy());
     }
 
-    private isValidApplication(application: any): boolean {
-        return application !== undefined 
-            && application !== null 
-            && application.name !== undefined
-            && application.name !== null
-            && application.healthCheckUrl !== undefined
-            && application.healthCheckUrl !== null;
+    private isValidApplication(application: object): boolean {
+        return this.isDefined(application)
+            && this.isDefinedWithType(application['name'], 'string')
+            && this.isDefinedWithType(application['healthCheckUrl'], 'string');
     }
+
 }

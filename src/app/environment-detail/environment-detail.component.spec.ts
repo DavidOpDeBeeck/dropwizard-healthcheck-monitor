@@ -13,7 +13,7 @@ import { HealthCheckDetailComponent } from './../health-check-detail/health-chec
 import { HealthChecksService } from './../health-checks.service';
 import { StartCasePipe } from './../start-case.pipe'
 
-import { DummyHealthChecksService } from './../testing/dummy-health-checks-service'
+import { DummyHealthChecksService } from './../testing/dummy-service'
 
 const application: Application = { name: "application", healthCheckUrl: "url" };
 const environment: Environment = { name: "environment", applications: [application] };

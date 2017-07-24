@@ -12,43 +12,40 @@ export class MockResponse extends Response {
     }
 }
 
-export class MockBackendBuilder {
+export class MockResource {
 
-    public static withMockBackend(mockBackend: MockBackend): MockBackendBuilder {
-        return new MockBackendBuilder(mockBackend);
+    public static withMockBackend(mockBackend: MockBackend): MockResource {
+        return new MockResource(mockBackend);
     }
 
-    private mockBackend: MockBackend;
     private url: string;
     private method: RequestMethod = RequestMethod.Get;
     private response: string;
     private status: number = 200;
 
-    constructor(mockBackend: MockBackend) {
-        this.mockBackend = mockBackend;
-    }
+    constructor(private mockBackend: MockBackend) { }
 
-    public withUrl(url: string): MockBackendBuilder {
+    public withUrl(url: string): MockResource {
         this.url = url;
         return this;
     }
 
-    public withMethod(method: RequestMethod): MockBackendBuilder {
+    public withMethod(method: RequestMethod): MockResource {
         this.method = method;
         return this;
     }
 
-    public withResponse(response: any): MockBackendBuilder {
+    public withResponse(response: any): MockResource {
         this.response = JSON.stringify(response);
         return this;
     }
 
-    public withStatus(status: number): MockBackendBuilder {
+    public withStatus(status: number): MockResource {
         this.status = status;
         return this;
     }
 
-    public withFail(): MockBackendBuilder {
+    public withErrorResponse(): MockResource {
         return this
             .withStatus(500)
             .withResponse("request was expected to fail");

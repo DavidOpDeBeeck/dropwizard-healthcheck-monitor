@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule, Http, Response, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { MockBackendBuilder } from './testing/mock-response';
+import { MockResource } from './testing/mock-response';
 
 import { Environment } from './domain/environment';
 import { Application } from './domain/application';
@@ -48,7 +48,7 @@ describe('HealthchecksService', () => {
     it('should return an empty Observable<HealthCheck[]> when the request is successful and the response is healthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
       
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(applicationUrl)
         .withResponse(healthyResponse)
@@ -67,7 +67,7 @@ describe('HealthchecksService', () => {
     it('should return an unhealthy Observable<HealthCheck[]> when the request is successful and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(applicationUrl)
         .withResponse(unhealthyReponse)
@@ -94,7 +94,7 @@ describe('HealthchecksService', () => {
     it('should return an unhealthy Observable<HealthCheck[]> when the request is unsuccessful and the response is unhealthy', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(applicationUrl)
         .withResponse(unhealthyReponse)
@@ -121,7 +121,7 @@ describe('HealthchecksService', () => {
     it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessful and the response not a HealthChecksResponse', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(applicationUrl)
         .withResponse(invalidResponse)
@@ -144,11 +144,29 @@ describe('HealthchecksService', () => {
     it('should return an unreachable Observable<HealthCheck[]> when the request is unsuccessful', 
         inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(applicationUrl)
-        .withFail()
+        .withErrorResponse()
         .build();
+
+      service.getUnHealthyChecks(environment).subscribe(
+        (healthChecks) => {
+          expect(healthChecks.length).toEqual(1);
+
+          expect(healthChecks[0].name).toEqual("unreachable");
+          expect(healthChecks[0].applications).toEqual([application]);
+          expect(healthChecks[0].status).toEqual(HealthStatus.UnReachable);
+        },
+        (error) => {
+          fail(error); 
+        });
+    }));
+
+    it('should return an unreachable Observable<HealthCheck[]> when the request timed out', 
+        inject([HealthChecksService, MockBackend], (service: HealthChecksService, mockBackend: MockBackend) => {
+
+      // no expectation
 
       service.getUnHealthyChecks(environment).subscribe(
         (healthChecks) => {

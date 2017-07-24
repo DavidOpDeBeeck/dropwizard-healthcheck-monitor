@@ -11,13 +11,11 @@ import 'rxjs';
 @Injectable()
 export class EnvironmentsService {
 
-  private parser: EnvironmentsResponseParser;
+  private parser: EnvironmentsResponseParser = new EnvironmentsResponseParser();
 
-  constructor(@Inject(Http) private http) {
-    this.parser = new EnvironmentsResponseParser();
-  }
+  constructor(@Inject(Http) private http) { }
 
-  getEnvironments(): Observable<Environment[]> {
+  public getEnvironments(): Observable<Environment[]> {
     return this.http.get("./assets/environments.json")
       .map((response: Response) => this.parser.parseResponse(response))
       .map((response: EnvironmentsResponse) => response.environments)

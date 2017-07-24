@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { MockBackendBuilder } from './testing/mock-response';
+import { MockResource } from './testing/mock-response';
 
 import { Environment } from './domain/environment'
 import { EnvironmentsResponseFormat } from './domain/response/environments-response'
@@ -33,7 +33,7 @@ describe('EnvironmentService', () => {
     it('should return an Observable<Environment> when the request is successful', 
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(environmentsUrl)
         .withResponse(environmentsResponse)
@@ -55,10 +55,10 @@ describe('EnvironmentService', () => {
     it('should return an empty Observable<Environment> when the request is unsuccessful', 
         inject([EnvironmentsService, MockBackend], (service: EnvironmentsService, mockBackend: MockBackend) => {
 
-      MockBackendBuilder
+      MockResource
         .withMockBackend(mockBackend)
         .withUrl(environmentsUrl)
-        .withFail()
+        .withErrorResponse()
         .build();
 
       service.getEnvironments().subscribe(
