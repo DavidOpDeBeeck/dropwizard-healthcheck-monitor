@@ -7,8 +7,9 @@ import { MockResponse } from './../../testing/mock-response';
 
 const application: Application = new Application("application", "anUrl");
 const validResponse: MockResponse = new MockResponse({ "aCheck": { "healthy": true }, "anotherCheck": { "healthy": false } });
-const responseWithInvalidTypes: MockResponse = new MockResponse({ "aCheck": { "healthy": 'string' } });
 const responseWithInvalidSchema: MockResponse = new MockResponse("invalid response");
+const responseWithInvalidHealthCheckType: MockResponse = new MockResponse({ "aCheck": { "healthy": 'string' } });
+const responseWithInvalidHealthChecksSchema: MockResponse = new MockResponse({ "aCheck": { } });
 
 describe('HealthChecksResponseParser', () => {
   describe('parseResponse', () => {
@@ -47,18 +48,37 @@ describe('HealthChecksResponseValidator', () => {
       expect(valid).toBeTruthy();
     });
 
-    it('should return "false" when the input has an invalid type', () => {
+
+    it('should return "false" when the input is undefined or null', () => {
       const validator = new HealthChecksResponseValidator();
 
-      let valid = validator.isValid(responseWithInvalidTypes);
+      let nullIsValid = validator.isValid(null);
+      let undefinedIsValid = validator.isValid(undefined);
 
-      expect(valid).toBeFalsy();
+      expect(nullIsValid).toBeFalsy();
+      expect(undefinedIsValid).toBeFalsy();
     });
 
     it('should return "false" when the input has an invalid schema', () => {
       const validator = new HealthChecksResponseValidator();
 
       let valid = validator.isValid(responseWithInvalidSchema);
+
+      expect(valid).toBeFalsy();
+    });
+
+    it('should return "false" when the input has an invalid health check type', () => {
+      const validator = new HealthChecksResponseValidator();
+
+      let valid = validator.isValid(responseWithInvalidHealthCheckType);
+
+      expect(valid).toBeFalsy();
+    });
+
+    it('should return "false" when the input has an invalid health checks schema', () => {
+      const validator = new HealthChecksResponseValidator();
+
+      let valid = validator.isValid(responseWithInvalidHealthChecksSchema);
 
       expect(valid).toBeFalsy();
     });

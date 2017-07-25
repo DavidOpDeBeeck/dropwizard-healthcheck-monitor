@@ -56,12 +56,15 @@ export class EnvironmentsResponseValidator extends DomainResponseValidator {
     private hasValidEnvironments(json: object): boolean {
         let environmentNames: string[] = Object.keys(json);
 
+        console.log(environmentNames);
         return environmentNames
                 .map(name => this.isValidEnvironment(json[name]))
-                .reduce(this.allElementsAreTruthy());
+                .reduce(this.allElementsAreTruthy(), true)
     }
 
     private isValidEnvironment(environment: object): boolean {
+console.log(environment);
+
         return this.isDefined(environment)
             && this.hasValidApplications(environment);
     }
@@ -71,7 +74,7 @@ export class EnvironmentsResponseValidator extends DomainResponseValidator {
 
         return applicationIndexes
                 .map(index => this.isValidApplication(environment[index]))
-                .reduce(this.allElementsAreTruthy());
+                .reduce(this.allElementsAreTruthy(), true);
     }
 
     private isValidApplication(application: object): boolean {

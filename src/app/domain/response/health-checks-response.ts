@@ -67,7 +67,7 @@ export class HealthChecksResponseValidator extends DomainResponseValidator {
 
         return healthCheckNames
                     .map(name => this.isValidHealthCheck(json, name))
-                    .reduce(this.allElementsAreTruthy())
+                    .reduce(this.allElementsAreTruthy(), true)
     }
 
     private isValidHealthCheck(json: object, healthCheckName: string): boolean {
